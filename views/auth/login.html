@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGLAS • Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #581c87 0%, #3b0764 60%, #1e0336 100%); }
+    .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+    .btn-primary { background: linear-gradient(135deg, #7c3aed, #581c87); }
+    .btn-primary:hover { background: linear-gradient(135deg, #6d28d9, #4c1d95); }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-5xl flex rounded-3xl overflow-hidden shadow-2xl" style="min-height:600px;">
+
+    <!-- LEFT PANEL -->
+    <div class="hidden md:flex flex-col justify-between w-1/2 p-12 text-white" style="background:rgba(255,255,255,0.05);">
+      <div>
+        <div class="flex items-center gap-3 mb-16">
+          <i class="fas fa-graduation-cap text-4xl"></i>
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight">AGLAS</h1>
+            <p class="text-purple-200 text-sm -mt-1">Automatic Assessnment Grader</p>
+          </div>
+        </div>
+        <h2 class="text-4xl font-bold leading-tight mb-6">Smart Grading,<br>Zero Effort.</h2>
+        <p class="text-purple-200 text-lg leading-relaxed">
+          Automatically grade objective, theory, and programming assessments — fast, fair, and accurate.
+        </p>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center gap-4 bg-white/10 rounded-2xl px-6 py-4">
+          <i class="fas fa-bolt text-yellow-300 text-xl"></i>
+          <p class="text-sm text-purple-100">Instant grading for MCQ & True/False</p>
+        </div>
+        <div class="flex items-center gap-4 bg-white/10 rounded-2xl px-6 py-4">
+          <i class="fas fa-brain text-pink-300 text-xl"></i>
+          <p class="text-sm text-purple-100">Keyword-based theory assessment</p>
+        </div>
+        <div class="flex items-center gap-4 bg-white/10 rounded-2xl px-6 py-4">
+          <i class="fas fa-code text-green-300 text-xl"></i>
+          <p class="text-sm text-purple-100">Test-case execution for programming tasks</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="flex-1 bg-white flex flex-col justify-center px-10 py-12">
+      <div class="flex md:hidden items-center gap-3 mb-10 justify-center">
+        <i class="fas fa-graduation-cap text-purple-700 text-3xl"></i>
+        <h1 class="text-2xl font-bold text-purple-900">AGLAS</h1>
+      </div>
+
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
+      <p class="text-gray-500 mb-10">Sign in to your account to continue</p>
+
+      <div id="errorMsg" class="hidden bg-red-50 border border-red-200 text-red-600 rounded-2xl px-5 py-4 mb-6 flex items-center gap-3">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText">Invalid email or password.</span>
+      </div>
+
+      <div id="successMsg" class="hidden bg-green-50 border border-green-200 text-green-600 rounded-2xl px-5 py-4 mb-6 flex items-center gap-3">
+        <i class="fas fa-check-circle"></i>
+        <span>Login successful! Redirecting...</span>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+          <div class="relative">
+            <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="email" id="email" placeholder="you@email.com"
+              class="input-field w-full pl-11 pr-4 py-4 border-2 border-gray-200 rounded-2xl text-gray-800 transition-all"
+              required />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+          <div class="relative">
+            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="password" id="password" placeholder="Enter your password"
+              class="input-field w-full pl-11 pr-12 py-4 border-2 border-gray-200 rounded-2xl text-gray-800 transition-all"
+              required />
+            <buttontype="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600">
+              <i id="eyeIcon" class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="text-right">
+          <a href="/auth/forgot-password" class="text-purple-700 text-sm font-semibold hover:underline">
+            Forgot Password?
+          </a>
+        </div>
+
+        <button type="submit" id="loginBtn"
+          class="btn-primary w-full py-4 rounded-2xl text-white font-semibold text-lg transition-all mt-2 flex items-center justify-center gap-3">
+          <span id="btnText">Sign In</span>
+          <i id="btnIcon" class="fas fa-arrow-right"></i>
+        </button>
+
+      </form>
+
+      <div class="mt-8 pt-8 border-t border-gray-100 text-center">
+        <p class="text-gray-500 text-sm">Don't have an account?
+          <a href="/auth/register" class="text-purple-700 font-semibold hover:underline ml-1">Create Account</a>
+        </p>
+      </div>
+      <p class="text-center text-xs text-gray-400 mt-6">
+        AGLAS •,&nbsp;|&nbsp;Final Year Project 2026 Developed by Grace
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const input = document.getElementById("password");
+      const icon = document.getElementById("eyeIcon");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("fa-eye", "fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.replace("fa-eye-slash", "fa-eye");
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const btn = document.getElementById("loginBtn");
+      const btnText = document.getElementById("btnText");
+      const btnIcon = document.getElementById("btnIcon");
+
+      btn.disabled = true;
+      btnText.textContent = "Signing in...";
+      btnIcon.className = "fas fa-spinner fa-spin";
+      document.getElementById("errorMsg").classList.add("hidden");
+
+      try {
+        const res = await fetch("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById("successMsg").classList.remove("hidden");
+          btnText.textContent = "Redirecting...";
+          setTimeout(() => {
+            if (data.role === "admin") window.location.href = "/admin/dashboard";
+            else if (data.role === "lecturer") window.location.href = "/lecturer/dashboard";
+            else window.location.href = "/student/dashboard";
+          }, 1000);
+        } else {
+          document.getElementById("errorText").textContent = data.message || "Invalid email or password.";
+          document.getElementById("errorMsg").classList.remove("hidden");
+          btn.disabled = false;
+          btnText.textContent = "Sign In";
+          btnIcon.className = "fas fa-arrow-right";
+        }
+      } catch (err) {
+        document.getElementById("errorText").textContent = "Server error. Please try again.";
+        document.getElementById("errorMsg").classList.remove("hidden");
+        btn.disabled = false;
+        btnText.textContent = "Sign In";
+        btnIcon.className = "fas fa-arrow-right";
+      }
+    }
+  </script>
+</body>
+</html>

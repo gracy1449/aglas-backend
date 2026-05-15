@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoGrader • Lecturer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .sidebar { background: linear-gradient(180deg, #581c87 0%, #3b0764 100%); }
+    .nav-item.active { background: rgba(255,255,255,0.15); }
+    .nav-item:hover { background: rgba(255,255,255,0.1); cursor: pointer; }
+ /* Mobile Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -256px;
+    top: 0;
+    bottom: 0;
+    z-index: 50;
+    transition: left 0.3s ease;
+    width: 256px !important;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 40;
+  }
+  .sidebar-overlay.show {
+    display: block;
+  }
+  .flex.h-screen { display: block; }
+  .flex-1.overflow-auto { height: 100vh; }
+}
+ </style>
+</head>
+<body class="bg-gray-50">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="flex h-screen overflow-hidden">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar w-64 text-white flex flex-col flex-shrink-0">
+    <div class="px-6 pt-8 pb-6 border-b border-purple-800">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-graduation-cap text-3xl"></i>
+        <div>
+          <h1 class="text-xl font-bold">AGLAS</h1>
+          <p class="text-purple-200 text-xs">Lecturer Panel</p>
+        </div>
+      </div>
+    </div>
+    <div class="mb-6 px-3 flex flex-col items-center text-center">
+
+  <!-- Clickable Avatar -->
+  <div class="relative mb-3 cursor-pointer group" onclick="document.getElementById('photoInput').click()">
+    <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold ring-2 ring-purple-400 overflow-hidden" id="sidebarAvatar">L</div>
+    <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+      <i class="fas fa-camera text-white text-sm"></i>
+    </div>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp"
+    class="hidden" onchange="uploadPhoto(this)"/>
+
+  <p class="font-semibold text-sm" id="lecturerName">Lecturer</p>
+  <p class="text-purple-300 text-xs">Lecturer</p>
+  <p class="text-purple-200 text-xs mt-1" id="sidebarStaff" style="display:none;">
+    <span class="bg-white/10 px-2 py-1 rounded-full" id="sidebarStaffText"></span>
+  </p>
+
+      <nav class="space-y-1">
+        <div onclick="showPage('dashboard', this)" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-home w-4"></i><span class="text-sm font-medium">Dashboard</span>
+        </div>
+        <div onclick="showPage('courses', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-book w-4"></i><span class="text-sm font-medium">My Courses</span>
+        </div>
+        <div onclick="showPage('assessments', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-file-alt w-4"></i><span class="text-sm font-medium">Assessments</span>
+        </div>
+        <div onclick="showPage('submissions', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-inbox w-4"></i><span class="text-sm font-medium">Submissions</span>
+        </div>
+        <div onclick="showPage('results', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-trophy w-4"></i><span class="text-sm font-medium">Results</span>
+        </div>
+        <div onclick="showPage('students', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-users w-4"></i><span class="text-sm font-medium">My Students</span>
+        </div>
+        <div onclick="showPage('settings', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-cog w-4"></i><span class="text-sm font-medium">Settings</span>
+        </div>
+      </nav>
+    </div>
+    <div class="p-4 border-t border-purple-800">
+      <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 py-3 rounded-2xl text-white text-sm font-medium transition-all">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="flex-1 overflow-auto">
+   <header class="bg-white border-b px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+  <div class="flex items-center gap-3">
+    <button onclick="toggleSidebar()"
+      class="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200">
+      <i class="fas fa-bars text-gray-600"></i>
+    </button>
+    <h1 id="pageTitle" class="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="hidden md:flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-medium">
+      <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+      System Online
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="text-right hidden md:block">
+        <p class="font-semibold text-gray-800 text-sm" id="headerName"></p>
+        <p class="text-xs text-gray-500">Lecturer</p>
+      </div>
+      <div class="w-9 h-9 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center font-bold" id="headerAvatar">L</div>
+    </div>
+  </div>
+</header>
+    <div class="p-8" id="mainContent"></div>
+  </div>
+</div>
+
+<script>
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  }
+
+  // Close sidebar when nav item clicked on mobile
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          document.querySelector('.sidebar').classList.remove('open');
+          document.getElementById('sidebarOverlay').classList.remove('show');
+        }
+      });
+    });
+  });
+  let currentUser = {};
+  let questionCount = 0;
+
+  // Load user info on page load
+  fetch('/auth/me').then(r => r.json()).then(data => {
+    if (!data.fullName) { window.location.href = '/auth/login'; return; }
+    currentUser = data;
+    const initial = data.surname ? data.surname.charAt(0).toUpperCase() : data.fullName.charAt(0).toUpperCase();
+    const displayName = data.surname ? `${data.surname.toUpperCase()} ${data.firstName}` : data.fullName;
+    document.getElementById('lecturerName').textContent = displayName;
+    document.getElementById('headerName').textContent = displayName;
+    document.getElementById('sidebarAvatar').textContent = initial;
+    // Load profile photo if exists
+if (data.profilePhoto) {
+  setAvatarPhoto(data.profilePhoto);
+} else {
+  document.getElementById('sidebarAvatar').textContent = initial;
+}
+    document.getElementById('headerAvatar').textContent = initial;
+    if (data.staffNumber) {
+      document.getElementById('sidebarStaff').style.display = 'block';
+      document.getElementById('sidebarStaffText').textContent = data.staffNumber;
+    }
+    loadDashboard();
+  }).catch(() => { window.location.href = '/auth/login'; });
+
+  function showPage(page, el) {
+    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('pageTitle').textContent =
+      page === 'dashboard' ? 'Dashboard' :
+      page === 'courses' ? 'My Courses' :
+      page === 'assessments' ? 'Assessments' :
+      page === 'submissions' ? 'Submissions' :
+      page === 'results' ? 'Results' :
+      page === 'students' ? 'My Students' : 'Settings';
+    if (page === 'dashboard') loadDashboard();
+    else if (page === 'courses') loadCourses();
+    else if (page === 'assessments') loadAssessments();
+    else if (page === 'submissions') loadSubmissions();
+    else if (page === 'results') loadLecturerResults();
+    else if (page === 'students') loadMyStudents();
+    else if (page === 'settings') loadSettings();
+  }
+
+  function getGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  function loadDashboard() {
+    const firstName = currentUser.fullName ? currentUser.fullName.split(' ')[0] : 'Lecturer';
+    document.getElementById('mainContent').innerHTML = `
+
+      <!-- Welcome Banner -->
+      <div class="bg-gradient-to-r from-purple-700 to-purple-900 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-64 h-full opacity-10">
+          <i class="fas fa-chalkboard-teacher text-9xl absolute right-8 top-6"></i>
+        </div>
+        <p class="text-purple-200 text-sm mb-1">${getGreeting()},</p>
+        <h2 class="text-3xl font-bold mb-2">Welcome back, ${firstName}! </h2>
+        ${currentUser.staffNumber ? `<p class="text-purple-300 text-xs mb-2">Staff No: <span class="font-bold text-white">${currentUser.staffNumber}</span></p>` : ''}
+       <p class="text-purple-200 text-sm mb-2">Here's what's happening with your courses today.</p>
+        ${currentUser.lastLogin ? `
+        <p class="text-purple-300 text-xs mb-6">
+          <i class="fas fa-clock mr-1"></i>
+          Last login: ${new Date(currentUser.lastLogin).toLocaleString('en-GB', {
+            weekday: 'short', year: 'numeric', month: 'short',
+            day: 'numeric', hour: '2-digit', minute: '2-digit'
+          })}
+        </p>` : '<p class="mb-6"></p>'}
+        <div class="flex gap-3">
+          <button onclick="showPage('assessments', document.querySelectorAll('.nav-item')[2])"
+            class="bg-white text-purple-700 px-5 py-2 rounded-xl text-sm font-bold hover:bg-purple-50 transition-all">
+            <i class="fas fa-plus mr-2"></i>New Assessment
+          </button>
+          <button onclick="showPage('submissions', document.querySelectorAll('.nav-item')[3])"
+            class="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all">
+            <i class="fas fa-inbox mr-2"></i>View Submissions
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-book text-purple-600"></i></div>
+          <p id="statCourses" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">My Courses</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-file-alt text-blue-600"></i></div>
+          <p id="statAssessments" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Assessments</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-inbox text-green-600"></i></div>
+          <p id="statSubmissions" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Submissions</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-check-circle text-pink-600"></i></div>
+          <p id="statGraded" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Graded</p>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">My Courses</h2>
+          <div id="dashCourses" class="space-y-3"><div class="text-gray-400 text-sm">Loading...</div></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4"> Submission Overview</h2>
+          <canvas id="submissionsChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <div class="space-y-3">
+            <button onclick="showPage('assessments', document.querySelectorAll('.nav-item')[2])" class="w-full flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all text-left">
+              <i class="fas fa-plus-circle text-purple-600"></i>
+              <div><p class="font-semibold text-sm text-gray-800">Create Assessment</p><p class="text-xs text-gray-500">Add objective, theory or programming test</p></div>
+            </button>
+            <button onclick="showPage('submissions', document.querySelectorAll('.nav-item')[3])" class="w-full flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all text-left">
+              <i class="fas fa-inbox text-blue-600"></i>
+              <div><p class="font-semibold text-sm text-gray-800">View Submissions</p><p class="text-xs text-gray-500">See student submissions and grades</p></div>
+            </button>
+            <button onclick="showPage('courses', document.querySelectorAll('.nav-item')[1])" class="w-full flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-all text-left">
+              <i class="fas fa-book text-green-600"></i>
+              <div><p class="font-semibold text-sm text-gray-800">My Courses</p><p class="text-xs text-gray-500">View all your assigned courses</p></div>
+            </button>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4"> Assessment Types</h2>
+          <canvas id="assessmentTypesChart" height="200"></canvas>
+        </div>
+      </div>`;
+
+    fetch('/lecturer/stats').then(r => r.json()).then(data => {
+      document.getElementById('statCourses').textContent = data.totalCourses || 0;
+      document.getElementById('statAssessments').textContent = data.totalAssessments || 0;
+      document.getElementById('statSubmissions').textContent = data.totalSubmissions || 0;
+      document.getElementById('statGraded').textContent = data.totalGraded || 0;
+
+      const div = document.getElementById('dashCourses');
+      if (data.courses && data.courses.length > 0) {
+        div.innerHTML = data.courses.map(c => `
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center text-xs font-bold">📚</div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800">${c.course_code}</p>
+                <p class="text-xs text-gray-400">${c.course_title}</p>
+              </div>
+            </div>
+            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+          </div>`).join('');
+      } else {
+        div.innerHTML = '<p class="text-gray-400 text-sm">No courses assigned yet.</p>';
+      }
+
+      // Draw Charts
+      setTimeout(() => {
+        const subCtx = document.getElementById('submissionsChart');
+        if (subCtx) {
+          new Chart(subCtx, {
+            type: 'bar',
+            data: {
+              labels: ['Total', 'Graded', 'Pending'],
+              datasets: [{
+                label: 'Submissions',
+                data: [
+                  data.totalSubmissions || 0,
+                  data.totalGraded || 0,
+                  Math.max(0, (data.totalSubmissions || 0) - (data.totalGraded || 0))
+                ],
+                backgroundColor: ['#7c3aed', '#10b981', '#f59e0b'],
+                borderRadius: 10,
+                borderSkipped: false
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { grid: { display: false } }
+              }
+            }
+          });
+        }
+
+        const typeCtx = document.getElementById('assessmentTypesChart');
+        if (typeCtx) {
+          new Chart(typeCtx, {
+            type: 'pie',
+            data: {
+              labels: ['Objective', 'Theory', 'Programming'],
+              datasets: [{
+                data: [
+                  Math.ceil((data.totalAssessments || 1) * 0.4),
+                  Math.ceil((data.totalAssessments || 1) * 0.4),
+                  Math.floor((data.totalAssessments || 1) * 0.2)
+                ],
+                backgroundColor: ['#ec4899', '#3b82f6', '#10b981'],
+                borderWidth: 0
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } }
+              }
+            }
+          });
+        }
+      }, 100);
+
+    }).catch(() => {});
+  }
+  
+  function loadCourses() {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">My Courses</h2></div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4" id="coursesList">
+          <div class="text-gray-400 text-sm">Loading courses...</div>
+        </div>
+      </div>`;
+
+    fetch('/lecturer/courses').then(r => r.json()).then(data => {
+      const div = document.getElementById('coursesList');
+      if (!data.courses || data.courses.length === 0) {
+        div.innerHTML = '<p class="text-gray-400 text-sm">No courses assigned yet.</p>'; return;
+      }
+      div.innerHTML = data.courses.map(c => `
+        <div class="border-2 border-gray-100 hover:border-purple-300 rounded-2xl p-6 transition-all">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center font-bold">📚</div>
+            <div>
+              <p class="font-bold text-gray-800">${c.course_code}</p>
+              <p class="text-xs text-gray-500">${c.course_title}</p>
+            </div>
+          </div>
+          <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">Active</span>
+        </div>`).join('');
+    }).catch(() => {});
+  }
+
+  function loadAssessments() {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Create New Assessment</h2></div>
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Title</label>
+                <input type="text" id="assessTitle" placeholder="e.g. Mid-Semester Exam"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Type</label>
+                <select id="assessType" onchange="showQuestionForm()"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
+                  <option value="">Select Type</option>
+                  <option value="objective">Objective (MCQ / True-False)</option>
+                  <option value="theory">Theory (Keyword-based)</option>
+                  <option value="programming">Programming (Test Cases)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Course</label>
+                <select id="assessCourse"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
+                  <option value="">Select Course</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Duration (minutes)</label>
+                <input type="number" id="assessDuration" value="30"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+              </div>
+            </div>
+
+            <div id="questionForm" class="hidden mt-4 border-t pt-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800">Add Questions</h3>
+                <span id="questionCount" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">0 questions added</span>
+              </div>
+              <div id="questionFields"></div>
+              <button onclick="addQuestion()" class="mt-4 flex items-center gap-2 text-purple-700 hover:text-purple-900 text-sm font-semibold">
+                <i class="fas fa-plus-circle"></i> Add Another Question
+              </button>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button onclick="saveAssessment(false)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold">
+                <i class="fas fa-save mr-2"></i>Save as Draft
+              </button>
+              <button onclick="saveAssessment(true)" class="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-xl text-sm font-semibold">
+                <i class="fas fa-paper-plane mr-2"></i>Publish Assessment
+              </button>
+            </div>
+            <div id="assessMsg" class="hidden text-sm font-medium mt-2"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">My Assessments</h2></div>
+          <div class="p-6">
+            <table class="w-full text-sm">
+              <thead><tr class="text-left text-gray-500 border-b">
+                <th class="pb-3 font-semibold">Title</th>
+                <th class="pb-3 font-semibold">Type</th>
+                <th class="pb-3 font-semibold">Course</th>
+               <th class="pb-3 font-semibold">Status</th>
+              <th class="pb-3 font-semibold">Analytics</th>
+            </tr></thead>
+            <tbody id="assessmentsList">
+              <tr><td colspan="5" class="py-4 text-gray-400 text-sm">No assessments yet.</td></tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+
+    fetchLecturerCourses();
+    fetchLecturerAssessments();
+  }
+
+  function fetchLecturerCourses() {
+    fetch('/lecturer/courses').then(r => r.json()).then(data => {
+      const sel = document.getElementById('assessCourse');
+      if (sel && data.courses) {
+        data.courses.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.course_id;
+          opt.textContent = `${c.course_code} - ${c.course_title}`;
+          sel.appendChild(opt);
+        });
+      }
+    }).catch(() => {});
+  }
+
+  function fetchLecturerAssessments() {
+    fetch('/lecturer/assessments').then(r => r.json()).then(data => {
+      const tbody = document.getElementById('assessmentsList');
+      if (!data.assessments || data.assessments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-gray-400 text-sm">No assessments yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.assessments.map(a => `
+        <tr class="hover:bg-gray-50">
+          <td class="py-3 font-medium text-gray-800">${a.title}</td>
+          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">${a.type}</span></td>
+          <td class="py-3 text-gray-500">${a.course_code || '—'}</td>
+          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${a.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${a.is_published ? 'Published' : 'Draft'}</span></td>
+          <td class="py-3">
+            <button onclick="viewAnalytics(${a.assessment_id}, '${a.title}')"
+              class="text-purple-600 hover:text-purple-800 text-xs font-semibold flex items-center gap-1">
+              <i class="fas fa-chart-bar"></i> View
+            </button>
+          </td>
+        </tr>`).join('');
+    }).catch(() => {});
+  }
+
+  function showQuestionForm() {
+    const type = document.getElementById('assessType').value;
+    if (!type) return;
+    document.getElementById('questionForm').classList.remove('hidden');
+    questionCount = 0;
+    document.getElementById('questionFields').innerHTML = '';
+    document.getElementById('questionCount').textContent = '0 questions added';
+    addQuestion();
+  }
+
+  function addQuestion() {
+    const type = document.getElementById('assessType').value;
+    questionCount++;
+    const div = document.createElement('div');
+    div.className = 'bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200';
+
+    if (type === 'objective') {
+      div.innerHTML = `
+        <p class="text-sm font-bold text-gray-700 mb-3">Question ${questionCount}</p>
+        <input type="text" placeholder="Question text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="qtext${questionCount}"/>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <input type="text" placeholder="Option A" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optA${questionCount}"/>
+          <input type="text" placeholder="Option B" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optB${questionCount}"/>
+          <input type="text" placeholder="Option C" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optC${questionCount}"/>
+          <input type="text" placeholder="Option D" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optD${questionCount}"/>
+        </div>
+        <div class="flex items-center gap-4">
+          <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="correct${questionCount}">
+            <option value="">Correct Answer</option>
+            <option value="A">A</option><option value="B">B</option>
+            <option value="C">C</option><option value="D">D</option>
+          </select>
+          <input type="number" placeholder="Marks" value="1" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="marks${questionCount}"/>
+        </div>`;
+    } else if (type === 'theory') {
+      div.innerHTML = `
+        <p class="text-sm font-bold text-gray-700 mb-3">Question ${questionCount}</p>
+        <input type="text" placeholder="Question text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="qtext${questionCount}"/>
+        <input type="text" placeholder="Keywords (comma-separated, e.g. database, SQL, query)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="keywords${questionCount}"/>
+        <input type="number" placeholder="Marks" value="5" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="marks${questionCount}"/>`;
+    } else if (type === 'programming') {
+      div.innerHTML = `
+        <p class="text-sm font-bold text-gray-700 mb-3">Question ${questionCount}</p>
+        <input type="text" placeholder="Question text (e.g. Write a function to find factorial)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="qtext${questionCount}"/>
+        <textarea placeholder="Expected output / test cases (e.g. factorial(5) = 120)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none h-20 resize-none" id="testcase${questionCount}"></textarea>
+        <input type="number" placeholder="Marks" value="10" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="marks${questionCount}"/>`;
+    }
+
+    document.getElementById('questionFields').appendChild(div);
+    document.getElementById('questionCount').textContent = `${questionCount} question${questionCount > 1 ? 's' : ''} added`;
+  }
+
+  function saveAssessment(publish) {
+    const title = document.getElementById('assessTitle').value;
+    const type = document.getElementById('assessType').value;
+    const courseId = document.getElementById('assessCourse').value;
+    const duration = document.getElementById('assessDuration').value;
+    const msg = document.getElementById('assessMsg');
+
+    if (!title || !type || !courseId) {
+      msg.textContent = 'Please fill in all fields.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+
+    // Collect questions
+    const questions = [];
+    for (let i = 1; i <= questionCount; i++) {
+      const qtext = document.getElementById(`qtext${i}`)?.value;
+      if (!qtext) continue;
+      const q = { question_text: qtext, question_type: type === 'objective' ? 'mcq' : type, marks: document.getElementById(`marks${i}`)?.value || 1 };
+      if (type === 'objective') {
+        q.options = { A: document.getElementById(`optA${i}`)?.value, B: document.getElementById(`optB${i}`)?.value, C: document.getElementById(`optC${i}`)?.value, D: document.getElementById(`optD${i}`)?.value };
+        q.correct_answer = document.getElementById(`correct${i}`)?.value;
+      } else if (type === 'theory') {
+        q.keywords = document.getElementById(`keywords${i}`)?.value;
+      } else if (type === 'programming') {
+        q.test_case = document.getElementById(`testcase${i}`)?.value;
+      }
+      questions.push(q);
+    }
+
+    fetch('/lecturer/assessments/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, type, courseId, duration, publish, questions })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = publish ? '✅ Assessment published successfully!' : '✅ Assessment saved as draft!';
+        msg.className = 'text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        fetchLecturerAssessments();
+      } else {
+        msg.textContent = data.message || 'Failed to save assessment.';
+        msg.className = 'text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    }).catch(() => {
+      msg.textContent = 'Server error. Please try again.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden');
+    });
+  }
+
+  function loadSubmissions() {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Student Submissions</h2></div>
+        <div class="p-6">
+          <table class="w-full text-sm">
+            <thead><tr class="text-left text-gray-500 border-b">
+              <th class="pb-3 font-semibold">Student</th>
+              <th class="pb-3 font-semibold">Assessment</th>
+              <th class="pb-3 font-semibold">Score</th>
+              <th class="pb-3 font-semibold">Status</th>
+              <th class="pb-3 font-semibold">Submitted</th>
+            </tr></thead>
+            <tbody id="submissionsList">
+              <tr><td colspan="5" class="py-4 text-gray-400 text-sm">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+    fetch('/lecturer/submissions').then(r => r.json()).then(data => {
+      const tbody = document.getElementById('submissionsList');
+      if (!data.submissions || data.submissions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-gray-400 text-sm">No submissions yet.</td></tr>'; return;
+      }
+      tbody.innerHTML = data.submissions.map(s => `
+        <tr class="hover:bg-gray-50">
+          <td class="py-3 font-medium text-gray-800">${s.student_name}</td>
+          <td class="py-3 text-gray-500">${s.assessment_title}</td>
+          <td class="py-3 font-bold text-purple-700">${s.total_score}/${s.total_marks}</td>
+          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${s.status === 'graded' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${s.status}</span></td>
+          <td class="py-3 text-gray-400">${new Date(s.submitted_at).toLocaleDateString()}</td>
+        </tr>`).join('');
+    }).catch(() => {});
+  }
+
+  function loadLecturerResults() {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Assessment Results</h2></div>
+        <div class="p-6" id="lecturerResultsTable">
+          <div class="text-gray-400 text-sm">Loading...</div>
+        </div>
+      </div>`;
+
+    fetch('/lecturer/results').then(r => r.json()).then(data => {
+      const div = document.getElementById('lecturerResultsTable');
+      if (!data.results || data.results.length === 0) {
+        div.innerHTML = '<p class="text-gray-400 text-sm">No results yet.</p>'; return;
+      }
+      div.innerHTML = `
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-gray-500 border-b">
+            <th class="pb-3 font-semibold">Student</th>
+            <th class="pb-3 font-semibold">Assessment</th>
+            <th class="pb-3 font-semibold">Course</th>
+            <th class="pb-3 font-semibold">Score</th>
+            <th class="pb-3 font-semibold">Grade</th>
+            <th class="pb-3 font-semibold">Date</th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-50">
+            ${data.results.map(r => {
+              const pct = Math.round((r.total_score / r.total_marks) * 100);
+              const grade = pct >= 70 ? 'A' : pct >= 60 ? 'B' : pct >= 50 ? 'C' : pct >= 45 ? 'D' : 'F';
+              const gradeColor = pct >= 70 ? 'bg-green-100 text-green-700' : pct >= 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600';
+              return `
+              <tr class="hover:bg-gray-50">
+                <td class="py-3 font-medium text-gray-800">${r.student_name}</td>
+                <td class="py-3 text-gray-500">${r.assessment_title}</td>
+                <td class="py-3 text-gray-500">${r.course_code}</td>
+                <td class="py-3 font-bold text-purple-700">${r.total_score}/${r.total_marks} (${pct}%)</td>
+                <td class="py-3"><span class="px-3 py-1 rounded-full text-xs font-bold ${gradeColor}">${grade}</span></td>
+                <td class="py-3 text-gray-400">${new Date(r.submitted_at).toLocaleDateString()}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }).catch(() => {});
+  }
+
+let allStudents = [];
+
+  function loadMyStudents() {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Students Offering My Courses</h2></div>
+
+        <!-- Search Bar -->
+        <div class="p-4 border-b bg-gray-50 flex items-center gap-4 flex-wrap">
+          <div class="relative flex-1 min-w-48">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input type="text" id="studentSearch" placeholder="Search by name or matric number..."
+              oninput="filterStudents()"
+              class="w-full pl-9 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+          </div>
+          <button onclick="clearStudentSearch()" class="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl text-sm font-medium transition-all">
+            <i class="fas fa-times mr-1"></i> Clear
+          </button>
+          <span id="studentCount" class="text-sm text-gray-500"></span>
+        </div>
+
+        <div id="myStudentsTable" class="p-6">
+          <div class="text-gray-400 text-sm">Loading...</div>
+        </div>
+      </div>`;
+
+    fetch('/lecturer/students').then(r => r.json()).then(data => {
+      allStudents = data.students || [];
+      renderStudentsTable(allStudents);
+    }).catch(() => {});
+  }
+
+  function filterStudents() {
+    const search = document.getElementById('studentSearch').value.toLowerCase();
+    const filtered = allStudents.filter(s =>
+      s.full_name.toLowerCase().includes(search) ||
+      (s.matric_number && s.matric_number.toLowerCase().includes(search)) ||
+      s.course_code.toLowerCase().includes(search)
+    );
+    renderStudentsTable(filtered);
+  }
+
+  function clearStudentSearch() {
+    document.getElementById('studentSearch').value = '';
+    renderStudentsTable(allStudents);
+  }
+
+  function renderStudentsTable(students) {
+    const div = document.getElementById('myStudentsTable');
+    const count = document.getElementById('studentCount');
+    if (count) count.textContent = `${students.length} student${students.length !== 1 ? 's' : ''} found`;
+
+    if (!students || students.length === 0) {
+      div.innerHTML = '<p class="text-gray-400 text-sm">No students found.</p>'; return;
+    }
+    div.innerHTML = `
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b">
+          <th class="pb-3 font-semibold">Student Name</th>
+          <th class="pb-3 font-semibold">Matric Number</th>
+          <th class="pb-3 font-semibold">Course</th>
+          <th class="pb-3 font-semibold">Email</th>
+          <th class="pb-3 font-semibold">Enrolled On</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-50">
+          ${students.map(s => `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center font-bold text-sm">${s.full_name.charAt(0)}</div>
+                <span class="font-medium text-gray-800">${s.full_name}</span>
+              </div>
+            </td>
+            <td class="py-3 text-gray-500">${s.matric_number || '—'}</td>
+            <td class="py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">${s.course_code}</span></td>
+            <td class="py-3 text-gray-400">${s.email}</td>
+            <td class="py-3 text-gray-400">${new Date(s.enrolled_at).toLocaleDateString()}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+function viewAnalytics(assessmentId, title) {
+    // Show in a modal overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'analyticsOverlay';
+    overlay.style.cssText = `
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;`;
+
+    overlay.innerHTML = `
+      <div style="background:white; border-radius:24px; width:100%; max-width:800px;
+        max-height:85vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+
+        <div style="background:linear-gradient(135deg,#581c87,#7c3aed); padding:24px 28px; border-radius:24px 24px 0 0; display:flex; align-items:center; justify-content:space-between;">
+          <div>
+            <h2 style="color:white; font-size:18px; font-weight:800; margin:0;">${title}</h2>
+            <p style="color:#e9d5ff; font-size:12px; margin:4px 0 0;">Per-Question Analytics</p>
+          </div>
+          <button onclick="document.getElementById('analyticsOverlay').remove()"
+            style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px;
+            border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
+            ×
+          </button>
+        </div>
+
+        <div id="analyticsContent" style="padding:24px;">
+          <div style="text-align:center; padding:40px;">
+            <div style="width:40px; height:40px; border:3px solid #7c3aed; border-top-color:transparent;
+              border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 16px;"></div>
+            <p style="color:#6b7280;">Loading analytics...</p>
+          </div>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+
+    fetch(`/lecturer/assessments/${assessmentId}/analytics`)
+      .then(r => r.json()).then(data => {
+        if (!data.success) {
+          document.getElementById('analyticsContent').innerHTML =
+            '<p style="color:#ef4444; text-align:center;">Failed to load analytics.</p>';
+          return;
+        }
+
+        const totalSubmissions = data.assessment.total_submissions || 0;
+
+        document.getElementById('analyticsContent').innerHTML = `
+          <!-- Summary -->
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">
+            <div style="background:#f5f3ff; border-radius:16px; padding:20px; text-align:center;">
+              <p style="font-size:28px; font-weight:800; color:#7c3aed; margin:0;">${totalSubmissions}</p>
+              <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Total Submissions</p>
+            </div>
+            <div style="background:#f0fdf4; border-radius:16px; padding:20px; text-align:center;">
+              <p style="font-size:28px; font-weight:800; color:#16a34a; margin:0;">${data.questions.length}</p>
+              <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Total Questions</p>
+            </div>
+            <div style="background:#eff6ff; border-radius:16px; padding:20px; text-align:center;">
+              <p style="font-size:28px; font-weight:800; color:#2563eb; margin:0;">${data.assessment.total_marks}</p>
+              <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Total Marks</p>
+            </div>
+          </div>
+
+          <!-- Per Question Breakdown -->
+          <h3 style="font-size:16px; font-weight:700; color:#111827; margin-bottom:16px;">
+            Question-by-Question Breakdown
+          </h3>
+
+          ${data.questions.length === 0 ?
+            '<p style="color:#9ca3af; text-align:center; padding:20px;">No submissions yet for this assessment.</p>' :
+            data.questions.map((q, i) => {
+              const correctPct = totalSubmissions > 0 ? Math.round((q.correct_count / totalSubmissions) * 100) : 0;
+              const wrongPct = totalSubmissions > 0 ? Math.round((q.wrong_count / totalSubmissions) * 100) : 0;
+              const difficulty = correctPct >= 70 ? 'Easy' : correctPct >= 40 ? 'Medium' : 'Hard';
+              const diffColor = correctPct >= 70 ? '#16a34a' : correctPct >= 40 ? '#d97706' : '#dc2626';
+              const diffBg = correctPct >= 70 ? '#f0fdf4' : correctPct >= 40 ? '#fffbeb' : '#fef2f2';
+
+              return `
+              <div style="border:1.5px solid #e5e7eb; border-radius:16px; padding:20px; margin-bottom:16px;">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px;">
+                  <div style="flex:1;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                      <span style="background:#7c3aed; color:white; width:26px; height:26px; border-radius:8px;
+                        display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">
+                        ${i + 1}
+                      </span>
+                      <p style="font-size:14px; font-weight:600; color:#111827; margin:0;">${q.question_text}</p>
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <span style="background:#f3f4f6; color:#6b7280; padding:3px 10px; border-radius:20px; font-size:11px;">${q.question_type}</span>
+                      <span style="background:#f3f4f6; color:#6b7280; padding:3px 10px; border-radius:20px; font-size:11px;">${q.marks} mark${q.marks > 1 ? 's' : ''}</span>
+                      <span style="background:${diffBg}; color:${diffColor}; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;">${difficulty}</span>
+                    </div>
+                  </div>
+                  <div style="text-align:center; flex-shrink:0;">
+                    <p style="font-size:28px; font-weight:800; color:${diffColor}; margin:0;">${correctPct}%</p>
+                    <p style="font-size:11px; color:#6b7280; margin:2px 0 0;">Correct</p>
+                  </div>
+                </div>
+
+                <!-- Progress bars -->
+                <div style="space-y:8px;">
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                    <span style="font-size:12px; color:#16a34a; font-weight:600; width:60px;">✅ Correct</span>
+                    <div style="flex:1; background:#f3f4f6; border-radius:8px; height:10px;">
+                      <div style="background:#16a34a; height:10px; border-radius:8px; width:${correctPct}%; transition:width 0.5s;"></div>
+                    </div>
+                    <span style="font-size:12px; color:#374151; font-weight:600; width:40px;">${q.correct_count || 0}/${totalSubmissions}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-size:12px; color:#dc2626; font-weight:600; width:60px;">❌ Wrong</span>
+                    <div style="flex:1; background:#f3f4f6; border-radius:8px; height:10px;">
+                      <div style="background:#dc2626; height:10px; border-radius:8px; width:${wrongPct}%; transition:width 0.5s;"></div>
+                    </div>
+                    <span style="font-size:12px; color:#374151; font-weight:600; width:40px;">${q.wrong_count || 0}/${totalSubmissions}</span>
+                  </div>
+                </div>
+
+                <div style="margin-top:12px; padding:10px 14px; background:#f9fafb; border-radius:10px;">
+                  <p style="font-size:12px; color:#6b7280; margin:0;">
+                    Average score: <strong style="color:#7c3aed;">${Math.round(q.avg_score * 100) / 100 || 0}/${q.marks}</strong>
+                    &nbsp;•&nbsp;
+                    ${correctPct >= 70 ? '✅ Students are performing well on this question.' :
+                      correctPct >= 40 ? '⚠️ Some students are struggling with this question.' :
+                      '🔴 Most students got this wrong — consider reviewing this topic.'}
+                  </p>
+                </div>
+              </div>`;
+            }).join('')
+          }
+        `;
+    }).catch(() => {
+      document.getElementById('analyticsContent').innerHTML =
+        '<p style="color:#ef4444; text-align:center;">Server error loading analytics.</p>';
+    });
+  }
+
+  function loadSettings() {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="max-w-2xl mx-auto space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i class="fas fa-user text-purple-600"></i></div>
+            <div><h2 class="text-lg font-bold text-gray-900">Profile Settings</h2><p class="text-xs text-gray-500">Update your information</p></div>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                <input type="text" id="updateName" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <input type="email" id="updateEmail" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+              </div>
+            </div>
+            <div id="profileMsg" class="hidden text-sm font-medium"></div>
+            <button onclick="updateProfile()" class="bg-purple-700 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-purple-800">
+              <i class="fas fa-save mr-2"></i>Save Changes
+            </button>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><i class="fas fa-lock text-blue-600"></i></div>
+            <div><h2 class="text-lg font-bold text-gray-900">Change Password</h2><p class="text-xs text-gray-500">Keep your account secure</p></div>
+          </div>
+          <div class="p-6 space-y-4">
+            <input type="password" id="currentPassword" placeholder="Current password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+            <div class="grid grid-cols-2 gap-4">
+              <input type="password" id="newPassword" placeholder="New password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+              <input type="password" id="confirmNewPassword" placeholder="Confirm new password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+            </div>
+            <div id="passwordMsg" class="hidden text-sm font-medium"></div>
+            <button onclick="updatePassword()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-blue-700">
+              <i class="fas fa-key mr-2"></i>Update Password
+            </button>
+          </div>
+        </div>
+      </div>`;
+
+    fetch('/auth/me').then(r => r.json()).then(data => {
+      document.getElementById('updateName').value = data.fullName || '';
+      document.getElementById('updateEmail').value = data.email || '';
+    });
+  }
+
+  function updateProfile() {
+    const name = document.getElementById('updateName').value;
+    const email = document.getElementById('updateEmail').value;
+    const msg = document.getElementById('profileMsg');
+    if (!name || !email) {
+      msg.textContent = 'Name and email are required.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+    fetch('/lecturer/settings/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: name, email })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = '✅ Profile updated!';
+        msg.className = 'text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        document.getElementById('lecturerName').textContent = name;
+        document.getElementById('headerName').textContent = name;
+      } else {
+        msg.textContent = data.message || 'Failed.';
+        msg.className = 'text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function updatePassword() {
+    const current = document.getElementById('currentPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmNewPassword').value;
+    const msg = document.getElementById('passwordMsg');
+    if (!current || !newPass || !confirm) {
+      msg.textContent = 'All fields are required.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+    if (newPass !== confirm) {
+      msg.textContent = 'Passwords do not match.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+    fetch('/lecturer/settings/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = '✅ Password updated!';
+        msg.className = 'text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+      } else {
+        msg.textContent = data.message || 'Failed.';
+        msg.className = 'text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function logout() {
+    if (confirm('Logout?')) window.location.href = '/auth/logout';
+  }
+// Upload profile photo
+function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Photo must be under 2MB.', 'error');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  alert('Uploading photo...', 'info', 2000);
+
+  fetch('/auth/upload-photo', {
+    method: 'POST',
+    body: formData
+  }).then(r => r.json()).then(data => {
+    if (data.success) {
+      setAvatarPhoto(data.photoPath);
+      alert('Profile photo updated! ✅', 'success');
+    } else {
+      alert(data.message || 'Upload failed.', 'error');
+    }
+  }).catch(() => {
+    alert('Server error. Please try again.', 'error');
+  });
+}
+
+// Set avatar to photo or initial letter
+function setAvatarPhoto(photoPath) {
+  const avatar = document.getElementById('sidebarAvatar');
+  if (photoPath) {
+    avatar.innerHTML = `<img src="${photoPath}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  }
+}
+
+</script>
+</body>
+</html>

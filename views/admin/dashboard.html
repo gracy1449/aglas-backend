@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGLAS• Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .sidebar { background: linear-gradient(180deg, #581c87 0%, #3b0764 100%); }
+    .nav-item.active { background: rgba(255,255,255,0.15); }
+    .nav-item:hover { background: rgba(255,255,255,0.1); cursor: pointer; }
+    .stat-card:hover { transform: translateY(-2px); transition: all 0.2s; }
+ /* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -256px;
+    top: 0; bottom: 0;
+    z-index: 50;
+    transition: left 0.3s ease;
+    width: 256px !important;
+  }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 40;
+  }
+  .sidebar-overlay.show { display: block; }
+  .flex.h-screen { display: block; height: 100vh; }
+  .flex-1.overflow-auto { height: 100vh; overflow-y: auto; }
+  header { padding: 12px 16px !important; }
+  .p-8 { padding: 16px !important; }
+  .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .grid-cols-3 { grid-template-columns: 1fr !important; }
+  .lg\\:grid-cols-2 { grid-template-columns: 1fr !important; }
+  .lg\\:grid-cols-3 { grid-template-columns: 1fr !important; }
+  .lg\\:grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+ </style>
+</head>
+<body class="bg-gray-50">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="flex h-screen overflow-hidden">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar w-64 text-white flex flex-col flex-shrink-0">
+    <div class="px-6 pt-8 pb-6 border-b border-purple-800">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-graduation-cap text-3xl"></i>
+        <div>
+          <h1 class="text-xl font-bold">AGLAS</h1>
+          <p class="text-purple-200 text-xs">Admin Panel</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-4 pt-6 flex-1">
+      <div class="mb-6 px-3">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg font-bold mb-2">A</div>
+        <p class="font-semibold text-sm" id="adminName">Administrator</p>
+        <p class="text-purple-300 text-xs">System Admin</p>
+      </div>
+
+      <nav class="space-y-1">
+        <div onclick="showPage('dashboard')" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-home w-4"></i><span class="text-sm font-medium">Dashboard</span>
+        </div>
+        <div onclick="showPage('users')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-users w-4"></i><span class="text-sm font-medium">Manage Users</span>
+        </div>
+        <div onclick="showPage('courses')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-book w-4"></i><span class="text-sm font-medium">Manage Courses</span>
+        </div>
+        <div onclick="showPage('assessments')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-file-alt w-4"></i><span class="text-sm font-medium">Assessments</span>
+        </div>
+        <div onclick="showPage('enrollments')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-user-plus w-4"></i><span class="text-sm font-medium">Enrollments</span>
+        </div>
+        <div onclick="showPage('settings')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+          <i class="fas fa-cog w-4"></i><span class="text-sm font-medium">Settings</span>
+        </div>
+      </nav>
+    </div>
+
+    <div class="p-4 border-t border-purple-800">
+      <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 py-3 rounded-2xl text-white text-sm font-medium transition-all">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="flex-1 overflow-auto">
+   <header class="bg-white border-b px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+  <div class="flex items-center gap-3">
+    <button onclick="toggleSidebar()"
+      class="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200">
+      <i class="fas fa-bars text-gray-600"></i>
+    </button>
+    <h1 id="pageTitle" class="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="hidden md:flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-medium">
+      <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+      System Online
+    </div>
+    <div class="w-9 h-9 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center font-bold">A</div>
+  </div>
+</header>
+
+    <div class="p-8" id="mainContent"></div>
+  </div>
+</div>
+
+<script>
+// Mobile sidebar toggle
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  }
+
+  // Close sidebar when nav item clicked on mobile
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth < 768) {
+        document.querySelector('.sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+      }
+    });
+  });
+
+  fetch('/auth/me').then(r => r.json()).then(data => {
+    if (data.fullName) document.getElementById('adminName').textContent = data.fullName;
+  }).catch(() => {});
+
+  function showPage(page) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+   document.getElementById('pageTitle').textContent =
+      page === 'dashboard' ? 'Dashboard' :
+      page === 'users' ? 'Manage Users' :
+      page === 'courses' ? 'Manage Courses' :
+     page === 'assessments' ? 'Assessments' :
+      page === 'enrollments' ? 'Enrollments' : 'Settings';
+    loadPage(page);
+  }
+
+  function loadPage(page) {
+    if (page === 'dashboard') loadDashboard();
+    else if (page === 'users') loadUsers();
+    else if (page === 'courses') loadCourses();
+    else if (page === 'assessments') loadAssessments();
+    else if (page === 'settings') loadSettings();
+    else if (page === 'enrollments') loadEnrollments();
+  }
+
+  function loadDashboard() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="stat-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-users text-purple-600"></i>
+            </div>
+            <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full font-medium">Total</span>
+          </div>
+          <p id="totalUsers" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Total Users</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-chalkboard-teacher text-blue-600"></i>
+            </div>
+            <span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full font-medium">Active</span>
+          </div>
+          <p id="totalLecturers" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Lecturers</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-user-graduate text-green-600"></i>
+            </div>
+            <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full font-medium">Enrolled</span>
+          </div>
+          <p id="totalStudents" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Students</p>
+        </div>
+        <div class="stat-card bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-book text-pink-600"></i>
+            </div>
+            <span class="text-xs text-pink-600 bg-pink-50 px-2 py-1 rounded-full font-medium">Active</span>
+          </div>
+          <p id="totalCourses" class="text-3xl font-bold text-gray-900">—</p>
+          <p class="text-sm text-gray-500 mt-1">Courses</p>
+        </div>
+      </div>
+
+      <!-- Last Login Banner -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-clock text-purple-600"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">Last Login</p>
+            <p class="text-xs text-gray-500" id="lastLoginTime">Loading...</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium">
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          Currently Active
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">Recent Users</h2>
+          <div id="recentUsers" class="space-y-3"><div class="text-gray-400 text-sm">Loading...</div></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">Users by Role</h2>
+          <canvas id="usersChart" height="220"></canvas>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+          <div class="space-y-3">
+            <button onclick="showPage('users')" class="w-full flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all text-left">
+              <i class="fas fa-user-plus text-purple-600"></i>
+              <div><p class="font-semibold text-sm text-gray-800">Add New User</p><p class="text-xs text-gray-500">Register a lecturer or student</p></div>
+            </button>
+            <button onclick="showPage('courses')" class="w-full flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all text-left">
+              <i class="fas fa-plus-circle text-blue-600"></i>
+              <div><p class="font-semibold text-sm text-gray-800">Create Course</p><p class="text-xs text-gray-500">Add a new course to the system</p></div>
+            </button>
+            <button onclick="showPage('assessments')" class="w-full flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-all text-left">
+              <i class="fas fa-file-alt text-green-600"></i>
+              <div><p class="font-semibold text-sm text-gray-800">View Assessments</p><p class="text-xs text-gray-500">See all assessments in the system</p></div>
+            </button>
+          </div>
+        </div>
+      </div>`;
+
+    fetch('/admin/stats').then(r => r.json()).then(data => {
+      document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+      document.getElementById('totalLecturers').textContent = data.totalLecturers || 0;
+      document.getElementById('totalStudents').textContent = data.totalStudents || 0;
+      document.getElementById('totalCourses').textContent = data.totalCourses || 0;
+
+      const recentDiv = document.getElementById('recentUsers');
+      if (data.recentUsers && data.recentUsers.length > 0) {
+        recentDiv.innerHTML = data.recentUsers.map(u => `
+          <div class="flex items-center justify-between py-2 border-b border-gray-50">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
+                ${u.full_name.charAt(0)}
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-800">${u.full_name}</p>
+                <p class="text-xs text-gray-400">${u.email}</p>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full font-medium ${
+              u.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+              u.role === 'lecturer' ? 'bg-blue-100 text-blue-700' :
+              'bg-green-100 text-green-700'}">${u.role}</span>
+          </div>`).join('');
+      } else {
+        recentDiv.innerHTML = '<p class="text-gray-400 text-sm">No users yet.</p>';
+      }
+
+      // Show last login time
+      fetch('/auth/me').then(r => r.json()).then(user => {
+        const el = document.getElementById('lastLoginTime');
+        if (el && user.lastLogin) {
+          el.textContent = new Date(user.lastLogin).toLocaleString('en-GB', {
+            weekday: 'short', year: 'numeric', month: 'short',
+            day: 'numeric', hour: '2-digit', minute: '2-digit'
+          });
+        } else if (el) {
+          el.textContent = 'First login today!';
+        }
+      });
+
+      // Draw Chart
+      setTimeout(() => {
+        const ctx = document.getElementById('usersChart');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Admins', 'Lecturers', 'Students'],
+              datasets: [{
+                data: [
+                  Math.max(0, (data.totalUsers || 0) - (data.totalLecturers || 0) - (data.totalStudents || 0)),
+                  data.totalLecturers || 0,
+                  data.totalStudents || 0
+                ],
+                backgroundColor: ['#7c3aed', '#3b82f6', '#10b981'],
+                borderWidth: 0,
+                hoverOffset: 8
+              }]
+            },
+            options: {
+              responsive: true,
+              cutout: '65%',
+              plugins: {
+                legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } }
+              }
+            }
+          });
+        }
+      }, 100);
+
+    }).catch(() => {});
+  }
+
+function loadUsers() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 flex items-center justify-between border-b">
+          <h2 class="text-lg font-bold text-gray-900">All Users</h2>
+          <button onclick="showAddUserForm()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+            <i class="fas fa-plus"></i> Add User
+          </button>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="p-4 border-b bg-gray-50 flex items-center gap-4 flex-wrap">
+          <div class="relative flex-1 min-w-48">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input type="text" id="userSearch" placeholder="Search by name or email..."
+              oninput="filterUsers()"
+              class="w-full pl-9 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+          </div>
+          <select id="roleFilter" onchange="filterUsers()"
+            class="px-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="lecturer">Lecturer</option>
+            <option value="student">Student</option>
+          </select>
+          <button onclick="clearUserFilters()" class="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl text-sm font-medium transition-all">
+            <i class="fas fa-times mr-1"></i> Clear
+          </button>
+          <span id="userCount" class="text-sm text-gray-500"></span>
+        </div>
+
+        <div id="addUserForm" class="hidden p-6 bg-purple-50 border-b">
+          <h3 class="font-bold text-gray-800 mb-4">Add New User</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <input id="newName" type="text" placeholder="Full Name" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+            <input id="newEmail" type="email" placeholder="Email Address" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+            <select id="newRole" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none">
+              <option value="">Select Role</option>
+              <option value="lecturer">Lecturer</option>
+              <option value="student">Student</option>
+            </select>
+            <input id="newPassword" type="password" placeholder="Password" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+          </div>
+          <div id="addUserMsg" class="hidden mt-3 text-sm font-medium"></div>
+          <div class="flex gap-3 mt-4">
+            <button onclick="addUser()" class="bg-purple-700 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-purple-800">Save User</button>
+            <button onclick="document.getElementById('addUserForm').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl text-sm font-semibold">Cancel</button>
+          </div>
+        </div>
+
+        <div id="usersTable" class="p-6"><div class="text-gray-400 text-sm">Loading users...</div></div>
+      </div>`;
+    fetchUsers();
+  }
+
+  function showAddUserForm() {
+    document.getElementById('addUserForm').classList.toggle('hidden');
+  }
+
+  let allUsers = [];
+
+  function fetchUsers() {
+    fetch('/admin/users').then(r => r.json()).then(data => {
+      allUsers = data.users || [];
+      renderUsersTable(allUsers);
+    }).catch(() => {
+      document.getElementById('usersTable').innerHTML = '<p class="text-red-400 text-sm">Failed to load users.</p>';
+    });
+  }
+
+  function filterUsers() {
+    const search = document.getElementById('userSearch').value.toLowerCase();
+    const role = document.getElementById('roleFilter').value;
+    const filtered = allUsers.filter(u => {
+      const matchSearch = u.full_name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search);
+      const matchRole = role === '' || u.role === role;
+      return matchSearch && matchRole;
+    });
+    renderUsersTable(filtered);
+  }
+
+  function clearUserFilters() {
+    document.getElementById('userSearch').value = '';
+    document.getElementById('roleFilter').value = '';
+    renderUsersTable(allUsers);
+  }
+
+  function renderUsersTable(users) {
+    const div = document.getElementById('usersTable');
+    const count = document.getElementById('userCount');
+    if (count) count.textContent = `${users.length} user${users.length !== 1 ? 's' : ''} found`;
+
+    if (!users || users.length === 0) {
+      div.innerHTML = '<p class="text-gray-400 text-sm">No users found.</p>'; return;
+    }
+    div.innerHTML = `<table class="w-full text-sm">
+      <thead><tr class="text-left text-gray-500 border-b">
+        <th class="pb-3 font-semibold">Name</th>
+        <th class="pb-3 font-semibold">Email</th>
+        <th class="pb-3 font-semibold">Role</th>
+        <th class="pb-3 font-semibold">Joined</th>
+        <th class="pb-3 font-semibold">Action</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-50">
+        ${users.map(u => `
+        <tr class="hover:bg-gray-50">
+          <td class="py-3 font-medium text-gray-800">${u.full_name}</td>
+          <td class="py-3 text-gray-500">${u.email}</td>
+          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${
+            u.role==='admin'?'bg-purple-100 text-purple-700':
+            u.role==='lecturer'?'bg-blue-100 text-blue-700':
+            'bg-green-100 text-green-700'}">${u.role}</span></td>
+          <td class="py-3 text-gray-400">${new Date(u.created_at).toLocaleDateString()}</td>
+          <td class="py-3"><button onclick="deleteUser(${u.user_id})" class="text-red-500 hover:text-red-700 text-xs font-semibold"><i class="fas fa-trash"></i> Delete</button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  function addUser() {
+    const name = document.getElementById('newName').value;
+    const email = document.getElementById('newEmail').value;
+    const role = document.getElementById('newRole').value;
+    const password = document.getElementById('newPassword').value;
+    const msg = document.getElementById('addUserMsg');
+    if (!name || !email || !role || !password) {
+      msg.textContent = 'All fields are required.';
+      msg.className = 'mt-3 text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+    fetch('/admin/users/add', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: name, email, role, password })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = 'User added!';
+        msg.className = 'mt-3 text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        fetchUsers();
+        setTimeout(() => document.getElementById('addUserForm').classList.add('hidden'), 1500);
+      } else {
+        msg.textContent = data.message || 'Failed.';
+        msg.className = 'mt-3 text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function deleteUser(id) {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+    fetch('/admin/users/delete/' + id, { method: 'DELETE' })
+      .then(r => r.json()).then(data => {
+        if (data.success) {
+          alert('User deleted successfully!', 'success');
+          fetchUsers();
+        } else {
+          alert('Failed to delete user.', 'error');
+        }
+      }).catch(() => {
+        alert('Server error. Please try again.', 'error');
+      });
+  }
+
+  let allCourses = [];
+
+  function loadCourses() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 flex items-center justify-between border-b">
+          <h2 class="text-lg font-bold text-gray-900">All Courses</h2>
+          <button onclick="showAddCourseForm()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+            <i class="fas fa-plus"></i> Add Course
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="p-4 border-b bg-gray-50 flex items-center gap-4 flex-wrap">
+          <div class="relative flex-1 min-w-48">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input type="text" id="courseSearch" placeholder="Search by code or title..."
+              oninput="filterCourses()"
+              class="w-full pl-9 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+          </div>
+          <button onclick="clearCourseFilters()" class="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl text-sm font-medium transition-all">
+            <i class="fas fa-times mr-1"></i> Clear
+          </button>
+          <span id="courseCount" class="text-sm text-gray-500"></span>
+        </div>
+
+        <div id="addCourseForm" class="hidden p-6 bg-purple-50 border-b">
+          <h3 class="font-bold text-gray-800 mb-4">Add New Course</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <input id="courseCode" type="text" placeholder="Course Code (e.g. CSC301)" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+            <input id="courseTitle" type="text" placeholder="Course Title" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
+            <select id="courseLecturer" class="px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none col-span-2">
+              <option value="">Assign Lecturer (optional)</option>
+            </select>
+          </div>
+          <div id="addCourseMsg" class="hidden mt-3 text-sm font-medium"></div>
+          <div class="flex gap-3 mt-4">
+            <button onclick="addCourse()" class="bg-purple-700 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-purple-800">Save Course</button>
+            <button onclick="document.getElementById('addCourseForm').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-xl text-sm font-semibold">Cancel</button>
+          </div>
+        </div>
+
+        <div id="coursesTable" class="p-6"><div class="text-gray-400 text-sm">Loading...</div></div>
+      </div>`;
+    fetchCourses();
+    fetchLecturers();
+  }
+
+  function fetchCourses() {
+    fetch('/admin/courses').then(r => r.json()).then(data => {
+      allCourses = data.courses || [];
+      renderCoursesTable(allCourses);
+    }).catch(() => {
+      document.getElementById('coursesTable').innerHTML = '<p class="text-red-400 text-sm">Failed to load.</p>';
+    });
+  }
+
+  function filterCourses() {
+    const search = document.getElementById('courseSearch').value.toLowerCase();
+    const filtered = allCourses.filter(c =>
+      c.course_code.toLowerCase().includes(search) ||
+      c.course_title.toLowerCase().includes(search) ||
+      (c.lecturer_name && c.lecturer_name.toLowerCase().includes(search))
+    );
+    renderCoursesTable(filtered);
+  }
+
+  function clearCourseFilters() {
+    document.getElementById('courseSearch').value = '';
+    renderCoursesTable(allCourses);
+  }
+
+  function renderCoursesTable(courses) {
+    const div = document.getElementById('coursesTable');
+    const count = document.getElementById('courseCount');
+    if (count) count.textContent = `${courses.length} course${courses.length !== 1 ? 's' : ''} found`;
+
+    if (!courses || courses.length === 0) {
+      div.innerHTML = '<p class="text-gray-400 text-sm">No courses found.</p>'; return;
+    }
+    div.innerHTML = `<table class="w-full text-sm">
+      <thead><tr class="text-left text-gray-500 border-b">
+        <th class="pb-3 font-semibold">Code</th>
+        <th class="pb-3 font-semibold">Title</th>
+        <th class="pb-3 font-semibold">Lecturer</th>
+        <th class="pb-3 font-semibold">Action</th>
+      </tr></thead>
+      <tbody class="divide-y divide-gray-50">
+        ${courses.map(c => `
+        <tr class="hover:bg-gray-50">
+          <td class="py-3 font-bold text-purple-700">${c.course_code}</td>
+          <td class="py-3 text-gray-800">${c.course_title}</td>
+          <td class="py-3 text-gray-500">${c.lecturer_name || 'Unassigned'}</td>
+          <td class="py-3"><button onclick="deleteCourse(${c.course_id})" class="text-red-500 hover:text-red-700 text-xs font-semibold"><i class="fas fa-trash"></i> Delete</button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  function showAddCourseForm() {
+    document.getElementById('addCourseForm').classList.toggle('hidden');
+  }
+
+  function fetchLecturers() {
+    fetch('/admin/lecturers').then(r => r.json()).then(data => {
+      const sel = document.getElementById('courseLecturer');
+      if (sel && data.lecturers) {
+        data.lecturers.forEach(l => {
+          const opt = document.createElement('option');
+          opt.value = l.user_id; opt.textContent = l.full_name;
+          sel.appendChild(opt);
+        });
+      }
+    }).catch(() => {});
+  }
+
+  function fetchCourses() {
+    fetch('/admin/courses').then(r => r.json()).then(data => {
+      const div = document.getElementById('coursesTable');
+      if (!data.courses || data.courses.length === 0) {
+        div.innerHTML = '<p class="text-gray-400 text-sm">No courses found.</p>'; return;
+      }
+      div.innerHTML = `<table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b">
+          <th class="pb-3 font-semibold">Code</th><th class="pb-3 font-semibold">Title</th>
+          <th class="pb-3 font-semibold">Lecturer</th><th class="pb-3 font-semibold">Action</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-50">
+          ${data.courses.map(c => `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3 font-bold text-purple-700">${c.course_code}</td>
+            <td class="py-3 text-gray-800">${c.course_title}</td>
+            <td class="py-3 text-gray-500">${c.lecturer_name || 'Unassigned'}</td>
+            <td class="py-3"><button onclick="deleteCourse(${c.course_id})" class="text-red-500 hover:text-red-700 text-xs font-semibold"><i class="fas fa-trash"></i> Delete</button></td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }).catch(() => { document.getElementById('coursesTable').innerHTML = '<p class="text-red-400 text-sm">Failed to load.</p>'; });
+  }
+
+  function addCourse() {
+    const code = document.getElementById('courseCode').value;
+    const title = document.getElementById('courseTitle').value;
+    const lecturerId = document.getElementById('courseLecturer').value;
+    const msg = document.getElementById('addCourseMsg');
+    if (!code || !title) {
+      msg.textContent = 'Code and title are required.';
+      msg.className = 'mt-3 text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+    fetch('/admin/courses/add', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseCode: code, courseTitle: title, lecturerId })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = 'Course added!';
+        msg.className = 'mt-3 text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        fetchCourses();
+        setTimeout(() => document.getElementById('addCourseForm').classList.add('hidden'), 1500);
+      } else {
+        msg.textContent = data.message || 'Failed.';
+        msg.className = 'mt-3 text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function deleteCourse(id) {
+    if (!confirm('Are you sure you want to delete this course?')) return;
+    fetch('/admin/courses/delete/' + id, { method: 'DELETE' })
+      .then(r => r.json()).then(data => {
+        if (data.success) {
+          alert('Course deleted successfully!', 'success');
+          fetchCourses();
+        } else {
+          alert('Failed to delete course.', 'error');
+        }
+      }).catch(() => {
+        alert('Server error. Please try again.', 'error');
+      });
+  }
+
+  function loadAssessments() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">All Assessments</h2></div>
+        <div id="assessmentsTable" class="p-6"><div class="text-gray-400 text-sm">Loading...</div></div>
+      </div>`;
+    fetch('/admin/assessments').then(r => r.json()).then(data => {
+      const div = document.getElementById('assessmentsTable');
+      if (!data.assessments || data.assessments.length === 0) {
+        div.innerHTML = '<p class="text-gray-400 text-sm">No assessments yet.</p>'; return;
+      }
+      div.innerHTML = `<table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b">
+          <th class="pb-3 font-semibold">Title</th><th class="pb-3 font-semibold">Type</th>
+          <th class="pb-3 font-semibold">Course</th><th class="pb-3 font-semibold">Status</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-50">
+          ${data.assessments.map(a => `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3 font-medium text-gray-800">${a.title}</td>
+            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">${a.type}</span></td>
+            <td class="py-3 text-gray-500">${a.course_code || '—'}</td>
+            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${a.is_published?'bg-green-100 text-green-700':'bg-gray-100 text-gray-600'}">${a.is_published?'Published':'Draft'}</span></td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }).catch(() => { document.getElementById('assessmentsTable').innerHTML = '<p class="text-red-400 text-sm">Failed to load.</p>'; });
+  }
+  
+  function loadEnrollments() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b flex items-center justify-between">
+            <h2 class="text-lg font-bold text-gray-900">Enroll Student into Course</h2>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Student</label>
+                <select id="enrollStudent" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
+                  <option value="">Choose a student...</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Course</label>
+                <select id="enrollCourse" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
+                  <option value="">Choose a course...</option>
+                </select>
+              </div>
+            </div>
+            <div id="enrollMsg" class="hidden mt-3 text-sm font-medium"></div>
+            <button onclick="enrollStudent()" class="mt-4 bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all">
+              <i class="fas fa-user-plus mr-2"></i>Enroll Student
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Current Enrollments</h2></div>
+          <div class="p-6" id="enrollmentsList">
+            <div class="text-gray-400 text-sm">Loading...</div>
+          </div>
+        </div>
+      </div>`;
+
+    // Load students
+    fetch('/admin/users').then(r => r.json()).then(data => {
+      const sel = document.getElementById('enrollStudent');
+      if (data.users) {
+        data.users.filter(u => u.role === 'student').forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.user_id;
+          opt.textContent = s.full_name;
+          sel.appendChild(opt);
+        });
+      }
+    });
+
+    // Load courses
+    fetch('/admin/courses').then(r => r.json()).then(data => {
+      const sel = document.getElementById('enrollCourse');
+      if (data.courses) {
+        data.courses.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.course_id;
+          opt.textContent = `${c.course_code} - ${c.course_title}`;
+          sel.appendChild(opt);
+        });
+      }
+    });
+
+    fetchEnrollments();
+  }
+
+  function fetchEnrollments() {
+    fetch('/admin/enrollments').then(r => r.json()).then(data => {
+      const div = document.getElementById('enrollmentsList');
+      if (!data.enrollments || data.enrollments.length === 0) {
+        div.innerHTML = '<p class="text-gray-400 text-sm">No enrollments yet.</p>'; return;
+      }
+      div.innerHTML = `<table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b">
+          <th class="pb-3 font-semibold">Student</th>
+          <th class="pb-3 font-semibold">Course</th>
+          <th class="pb-3 font-semibold">Enrolled On</th>
+          <th class="pb-3 font-semibold">Action</th>
+        </tr></thead>
+        <tbody class="divide-y divide-gray-50">
+          ${data.enrollments.map(e => `
+          <tr class="hover:bg-gray-50">
+            <td class="py-3 font-medium text-gray-800">${e.student_name}</td>
+            <td class="py-3 text-gray-500">${e.course_code} - ${e.course_title}</td>
+            <td class="py-3 text-gray-400">${new Date(e.enrolled_at).toLocaleDateString()}</td>
+            <td class="py-3">
+              <button onclick="removeEnrollment(${e.enrollment_id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+    });
+  }
+
+  function enrollStudent() {
+    const studentId = document.getElementById('enrollStudent').value;
+    const courseId = document.getElementById('enrollCourse').value;
+    const msg = document.getElementById('enrollMsg');
+
+    if (!studentId || !courseId) {
+      msg.textContent = 'Please select both a student and a course.';
+      msg.className = 'mt-3 text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+
+    fetch('/admin/enrollments/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, courseId })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = '✅ Student enrolled successfully!';
+        msg.className = 'mt-3 text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        fetchEnrollments();
+      } else {
+        msg.textContent = data.message || 'Failed to enroll.';
+        msg.className = 'mt-3 text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function removeEnrollment(id) {
+    if (!confirm('Remove this enrollment?')) return;
+    fetch('/admin/enrollments/remove/' + id, { method: 'DELETE' })
+      .then(r => r.json()).then(data => {
+        if (data.success) {
+          showToast('Enrollment removed!', 'success');
+          fetchEnrollments();
+        } else {
+          showToast('Failed to remove enrollment.', 'error');
+        }
+      }).catch(() => {
+        showToast('Server error. Please try again.', 'error');
+      });
+  }
+  
+function loadSettings() {
+    const content = document.getElementById('mainContent');
+    content.innerHTML = `
+      <div class="max-w-3xl mx-auto space-y-6">
+
+        <!-- Profile Settings -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-user text-purple-600"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">Profile Settings</h2>
+              <p class="text-xs text-gray-500">Update your personal information</p>
+            </div>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex items-center gap-6 mb-6">
+              <div class="w-20 h-20 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center text-3xl font-bold" id="avatarLetter">A</div>
+              <div>
+                <p class="font-semibold text-gray-800" id="profileName">Loading...</p>
+                <p class="text-sm text-gray-500" id="profileEmail"></p>
+                <span class="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-semibold mt-1 inline-block">Administrator</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                <input type="text" id="updateName" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-purple-500 outline-none transition-all"/>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                <input type="email" id="updateEmail" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-purple-500 outline-none transition-all"/>
+              </div>
+            </div>
+            <div id="profileMsg" class="hidden text-sm font-medium"></div>
+            <button onclick="updateProfile()" class="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all">
+              <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-lock text-blue-600"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">Change Password</h2>
+              <p class="text-xs text-gray-500">Keep your account secure</p>
+            </div>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+              <input type="password" id="currentPassword" placeholder="Enter current password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-purple-500 outline-none transition-all"/>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                <input type="password" id="newPassword" placeholder="Min. 8 characters" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-purple-500 outline-none transition-all"/>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+                <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:border-purple-500 outline-none transition-all"/>
+              </div>
+            </div>
+            <div id="passwordMsg" class="hidden text-sm font-medium"></div>
+            <button onclick="updatePassword()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all">
+              <i class="fas fa-key mr-2"></i> Update Password
+            </button>
+          </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-6 border-b flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-info-circle text-green-600"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">System Information</h2>
+              <p class="text-xs text-gray-500">About this AutoGrader installation</p>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Application</p>
+                <p class="font-semibold text-gray-800">AutoGrader</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Version</p>
+                <p class="font-semibold text-gray-800">1.0.0</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Backend</p>
+                <p class="font-semibold text-gray-800">Node.js + Express</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Database</p>
+                <p class="font-semibold text-gray-800">MySQL</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Assessment Types</p>
+                <p class="font-semibold text-gray-800">Objective, Theory, Programming</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Status</p>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <p class="font-semibold text-green-600">Online</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+          <div class="p-6 border-b border-red-100 flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+              <i class="fas fa-exclamation-triangle text-red-500"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-red-600">Danger Zone</h2>
+              <p class="text-xs text-gray-500">Irreversible actions — proceed with caution</p>
+            </div>
+          </div>
+          <div class="p-6 flex items-center justify-between">
+            <div>
+              <p class="font-semibold text-gray-800 text-sm">Clear All Submissions</p>
+              <p class="text-xs text-gray-500 mt-1">Permanently delete all student submissions and grades</p>
+            </div>
+            <button onclick="clearSubmissions()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+              <i class="fas fa-trash mr-2"></i> Clear Data
+            </button>
+          </div>
+        </div>
+
+      </div>`;
+
+    // Load current user info
+    fetch('/auth/me').then(r => r.json()).then(data => {
+      document.getElementById('profileName').textContent = data.fullName;
+      document.getElementById('profileEmail').textContent = data.email || '';
+      document.getElementById('updateName').value = data.fullName;
+      document.getElementById('updateEmail').value = data.email || '';
+      document.getElementById('avatarLetter').textContent = data.fullName.charAt(0);
+    });
+  }
+
+  function updateProfile() {
+    const name = document.getElementById('updateName').value;
+    const email = document.getElementById('updateEmail').value;
+    const msg = document.getElementById('profileMsg');
+
+    if (!name || !email) {
+      msg.textContent = 'Name and email are required.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+
+    fetch('/admin/settings/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: name, email })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = 'Profile updated successfully!';
+        msg.className = 'text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        document.getElementById('adminName').textContent = name;
+      } else {
+        msg.textContent = data.message || 'Failed to update.';
+        msg.className = 'text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function updatePassword() {
+    const current = document.getElementById('currentPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmNewPassword').value;
+    const msg = document.getElementById('passwordMsg');
+
+    if (!current || !newPass || !confirm) {
+      msg.textContent = 'All password fields are required.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+
+    if (newPass !== confirm) {
+      msg.textContent = 'New passwords do not match.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+
+    if (newPass.length < 8) {
+      msg.textContent = 'Password must be at least 8 characters.';
+      msg.className = 'text-sm font-medium text-red-600';
+      msg.classList.remove('hidden'); return;
+    }
+
+    fetch('/admin/settings/password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        msg.textContent = 'Password updated successfully!';
+        msg.className = 'text-sm font-medium text-green-600';
+        msg.classList.remove('hidden');
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmNewPassword').value = '';
+      } else {
+        msg.textContent = data.message || 'Failed to update password.';
+        msg.className = 'text-sm font-medium text-red-600';
+        msg.classList.remove('hidden');
+      }
+    });
+  }
+
+  function clearSubmissions() {
+    if (!confirm('Are you sure? This will permanently delete ALL submissions and grades!')) return;
+    fetch('/admin/settings/clear-submissions', { method: 'DELETE' })
+      .then(r => r.json()).then(data => {
+        if (data.success) alert('All submissions cleared!');
+        else alert('Failed to clear submissions.');
+      });
+  }
+  function logout() {
+    if (confirm('Logout?')) window.location.href = '/auth/logout';
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>
