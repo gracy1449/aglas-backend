@@ -25,6 +25,7 @@ router.get('/stats', isStudent, (req, res) => {
 
     db.query(`SELECT COUNT(*) as total FROM enrollments WHERE student_id = ?`,
         [studentId], (err, result) => {
+        if (err) return res.json({ error: true });
         stats.totalCourses = result[0].total;
 
         db.query(`SELECT DISTINCT a.assessment_id, a.title, a.type,
@@ -39,26 +40,30 @@ router.get('/stats', isStudent, (req, res) => {
             stats.totalAssessments = assessments ? assessments.length : 0;
             stats.assessments = assessments || [];
 
-            db.query(`SELECT COUNT(*) as total FROM submissions WHERE student_id = ?`,
+            db.query(`SELECT COUNT(*) as total FROM submissions 
+                WHERE student_id = ?`,
                 [studentId], (err, result) => {
                 stats.totalSubmitted = result[0].total;
 
-                db.query(`SELECT AVG((s.total_score / a.total_marks) * 100) as avg
+                db.query(`SELECT s.total_score, a.total_marks, 
+                    a.title as assessment_title, s.submitted_at
                     FROM submissions s
                     JOIN assessments a ON s.assessment_id = a.assessment_id
-                    WHERE s.student_id = ? AND s.status = 'graded'`,
-                    [studentId], (err, result) => {
-                    stats.averageScore = result[0].avg ? Math.round(result[0].avg) : null;
+                    WHERE s.student_id = ? AND s.status = 'graded'
+                    ORDER BY s.submitted_at DESC`,
+                    [studentId], (err, grades) => {
+                    stats.grades = grades || [];
 
-                    db.query(`SELECT s.total_score, a.total_marks, a.title as assessment_title
-                        FROM submissions s
-                        JOIN assessments a ON s.assessment_id = a.assessment_id
-                        WHERE s.student_id = ? AND s.status = 'graded'
-                        ORDER BY s.submitted_at DESC LIMIT 3`,
-                        [studentId], (err, grades) => {
-                        stats.grades = grades || [];
-                        res.json(stats);
-                    });
+                    if (grades && grades.length > 0) {
+                        const avg = grades.reduce((sum, g) =>
+                            sum + Math.round((g.total_score / g.total_marks) * 100), 0
+                        ) / grades.length;
+                        stats.averageScore = Math.round(avg);
+                    } else {
+                        stats.averageScore = null;
+                    }
+
+                    res.json(stats);
                 });
             });
         });
@@ -334,16 +339,17 @@ router.post('/assessments/:id/submit', isStudent, (req, res) => {
 
 // Get grades
 router.get('/grades', isStudent, (req, res) => {
-    db.query(`SELECT s.total_score, s.submitted_at, a.total_marks,
-        a.title as assessment_title, c.course_code
+    db.query(`SELECT s.submission_id, s.total_score, s.submitted_at, s.lecturer_comment,
+        a.total_marks, a.title as assessment_title, a.type,
+        c.course_code
         FROM submissions s
         JOIN assessments a ON s.assessment_id = a.assessment_id
         JOIN courses c ON a.course_id = c.course_id
         WHERE s.student_id = ? AND s.status = 'graded'
         ORDER BY s.submitted_at DESC`,
         [req.session.user.id], (err, results) => {
-        if (err) return res.json({ success: false });
-        res.json({ grades: results });
+        if (err) return res.json({ success: false, grades: [] });
+        res.json({ success: true, grades: results || [] });
     });
 });
 
@@ -377,16 +383,20 @@ router.post('/settings/password', isStudent, (req, res) => {
 
 // Get detailed results
 router.get('/results', isStudent, (req, res) => {
-    db.query(`SELECT s.total_score, s.submitted_at, a.total_marks,
-        a.title as assessment_title, a.type, c.course_code
+    db.query(`SELECT s.submission_id, s.total_score, s.submitted_at,
+        a.total_marks, a.title as assessment_title, a.type,
+        c.course_code
         FROM submissions s
         JOIN assessments a ON s.assessment_id = a.assessment_id
         JOIN courses c ON a.course_id = c.course_id
         WHERE s.student_id = ? AND s.status = 'graded'
         ORDER BY s.submitted_at DESC`,
         [req.session.user.id], (err, results) => {
-        if (err) return res.json({ success: false });
-        res.json({ results });
+        if (err) {
+            console.error('Results error:', err.message);
+            return res.json({ success: false, results: [] });
+        }
+        res.json({ success: true, results: results || [] });
     });
 });
 
@@ -402,7 +412,11 @@ router.get('/gpa', isStudent, (req, res) => {
         WHERE s.student_id = ? AND s.status = 'graded'
         ORDER BY s.submitted_at DESC`,
         [studentId], (err, results) => {
-        if (err) return res.json({ success: false });
+        if (err) {
+            console.error('GPA error:', err.message);
+            return res.json({ success: false });
+        }
+
         if (!results || results.length === 0) {
             return res.json({
                 success: true,
@@ -418,7 +432,6 @@ router.get('/gpa', isStudent, (req, res) => {
             });
         }
 
-        // Calculate GPA (5.0 scale)
         const gradePoints = results.map(r => {
             const pct = Math.round((r.total_score / r.total_marks) * 100);
             let point = 0;
@@ -439,7 +452,6 @@ router.get('/gpa', isStudent, (req, res) => {
         const passed = gradePoints.filter(r => r.pct >= 45).length;
         const failed = gradePoints.filter(r => r.pct < 45).length;
 
-        // Course performance
         const courseMap = {};
         gradePoints.forEach(r => {
             if (!courseMap[r.course_code]) {
@@ -472,6 +484,21 @@ router.get('/gpa', isStudent, (req, res) => {
             coursePerformance,
             results: gradePoints
         });
+    });
+});
+
+// Get materials for student's enrolled courses
+router.get('/materials', isStudent, (req, res) => {
+    db.query(`SELECT m.*, c.course_code, c.course_title, u.full_name as lecturer_name
+        FROM course_materials m
+        JOIN courses c ON m.course_id = c.course_id
+        JOIN users u ON m.lecturer_id = u.user_id
+        JOIN enrollments e ON c.course_id = e.course_id
+        WHERE e.student_id = ?
+        ORDER BY m.uploaded_at DESC`,
+        [req.session.user.id], (err, results) => {
+        if (err) return res.json({ success: false, materials: [] });
+        res.json({ success: true, materials: results || [] });
     });
 });
 

@@ -3,147 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AutoGrader • Lecturer</title>
+  <title>AGLAS - Lecturer Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .sidebar { background: linear-gradient(180deg, #581c87 0%, #3b0764 100%); }
-    .nav-item.active { background: rgba(255,255,255,0.15); }
-    .nav-item:hover { background: rgba(255,255,255,0.1); cursor: pointer; }
- /* Mobile Responsive */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: -256px;
-    top: 0;
-    bottom: 0;
-    z-index: 50;
-    transition: left 0.3s ease;
-    width: 256px !important;
-  }
-  .sidebar.open {
-    left: 0;
-  }
-  .sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 40;
-  }
-  .sidebar-overlay.show {
-    display: block;
-  }
-  .flex.h-screen { display: block; }
-  .flex-1.overflow-auto { height: 100vh; }
-}
- </style>
+    body { font-family: 'Inter', sans-serif; background: #f5f0ff; }
+    .sidebar { background: linear-gradient(180deg, #1a0a35 0%, #3b0764 50%, #1a0a35 100%); }
+    .nav-item.active { background: rgba(255,255,255,0.15); border-left: 3px solid #a855f7; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); cursor: pointer; }
+    header { background: white; border-bottom: 2px solid #ede9fe; }
+    @media (max-width: 768px) {
+      .sidebar { position: fixed; left: -256px; top: 0; bottom: 0; z-index: 50; transition: left 0.3s ease; width: 256px !important; }
+      .sidebar.open { left: 0; }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40; }
+      .sidebar-overlay.show { display: block; }
+      .flex.h-screen { display: block; height: 100vh; }
+      .flex-1.overflow-auto { height: 100vh; overflow-y: auto; }
+      header { padding: 12px 16px !important; }
+      .p-8 { padding: 16px !important; }
+      .lg\\:grid-cols-2 { grid-template-columns: 1fr !important; }
+      .lg\\:grid-cols-4 { grid-template-columns: repeat(2,1fr) !important; }
+    }
+  </style>
 </head>
-<body class="bg-gray-50">
+<body>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-<div class="flex h-screen overflow-hidden">
+  <div class="flex h-screen overflow-hidden">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar w-64 text-white flex flex-col flex-shrink-0">
-    <div class="px-6 pt-8 pb-6 border-b border-purple-800">
-      <div class="flex items-center gap-3">
-        <i class="fas fa-graduation-cap text-3xl"></i>
-        <div>
-          <h1 class="text-xl font-bold">AGLAS</h1>
-          <p class="text-purple-200 text-xs">Lecturer Panel</p>
+    <!-- SIDEBAR -->
+    <div class="sidebar w-64 text-white flex flex-col flex-shrink-0">
+      <div class="px-6 pt-8 pb-6 border-b border-purple-800">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-graduation-cap text-3xl" style="color:#f5c518"></i>
+          <div>
+            <h1 class="text-xl font-bold tracking-wider">AGLAS</h1>
+            <p class="text-purple-200 text-xs">Lecturer Portal</p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="mb-6 px-3 flex flex-col items-center text-center">
-
-  <!-- Clickable Avatar -->
-  <div class="relative mb-3 cursor-pointer group" onclick="document.getElementById('photoInput').click()">
-    <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold ring-2 ring-purple-400 overflow-hidden" id="sidebarAvatar">L</div>
-    <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-      <i class="fas fa-camera text-white text-sm"></i>
-    </div>
-  </div>
-
-  <!-- Hidden file input -->
-  <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp"
-    class="hidden" onchange="uploadPhoto(this)"/>
-
-  <p class="font-semibold text-sm" id="lecturerName">Lecturer</p>
-  <p class="text-purple-300 text-xs">Lecturer</p>
-  <p class="text-purple-200 text-xs mt-1" id="sidebarStaff" style="display:none;">
-    <span class="bg-white/10 px-2 py-1 rounded-full" id="sidebarStaffText"></span>
-  </p>
-
-      <nav class="space-y-1">
-        <div onclick="showPage('dashboard', this)" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-home w-4"></i><span class="text-sm font-medium">Dashboard</span>
+      <div class="px-4 flex-1 overflow-y-auto">
+        <div class="py-6 flex flex-col items-center text-center border-b border-purple-800 mb-4">
+          <div class="relative mb-3 cursor-pointer group" onclick="document.getElementById('photoInput').click()">
+            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold ring-2 ring-purple-400 overflow-hidden" id="sidebarAvatar">L</div>
+            <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+              <i class="fas fa-camera text-white text-sm"></i>
+            </div>
+          </div>
+          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="uploadPhoto(this)"/>
+          <p class="font-semibold text-sm" id="lecturerName">Lecturer</p>
+          <p class="text-purple-300 text-xs mt-0.5">Lecturer</p>
+          <p class="text-purple-200 text-xs mt-2 mb-1" id="sidebarStaff" style="display:none;">
+            <span class="bg-white/10 px-3 py-1 rounded-full" id="sidebarStaffText"></span>
+          </p>
         </div>
-        <div onclick="showPage('courses', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-book w-4"></i><span class="text-sm font-medium">My Courses</span>
-        </div>
-        <div onclick="showPage('assessments', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-file-alt w-4"></i><span class="text-sm font-medium">Assessments</span>
-        </div>
-        <div onclick="showPage('submissions', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-inbox w-4"></i><span class="text-sm font-medium">Submissions</span>
-        </div>
-        <div onclick="showPage('results', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-trophy w-4"></i><span class="text-sm font-medium">Results</span>
-        </div>
-        <div onclick="showPage('students', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-users w-4"></i><span class="text-sm font-medium">My Students</span>
-        </div>
-        <div onclick="showPage('settings', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
-          <i class="fas fa-cog w-4"></i><span class="text-sm font-medium">Settings</span>
-        </div>
-      </nav>
-    </div>
-    <div class="p-4 border-t border-purple-800">
-      <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 py-3 rounded-2xl text-white text-sm font-medium transition-all">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div class="flex-1 overflow-auto">
-   <header class="bg-white border-b px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
-  <div class="flex items-center gap-3">
-    <button onclick="toggleSidebar()"
-      class="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200">
-      <i class="fas fa-bars text-gray-600"></i>
-    </button>
-    <h1 id="pageTitle" class="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
-  </div>
-  <div class="flex items-center gap-3">
-    <div class="hidden md:flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-medium">
-      <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-      System Online
-    </div>
-    <div class="flex items-center gap-3">
-      <div class="text-right hidden md:block">
-        <p class="font-semibold text-gray-800 text-sm" id="headerName"></p>
-        <p class="text-xs text-gray-500">Lecturer</p>
+        <nav class="space-y-1">
+          <div onclick="showPage('dashboard', this)" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-home w-4"></i><span class="text-sm font-medium">Dashboard</span>
+          </div>
+          <div onclick="showPage('courses', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-book w-4"></i><span class="text-sm font-medium">My Courses</span>
+          </div>
+          <div onclick="showPage('materials', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-folder-open w-4"></i><span class="text-sm font-medium">Course Materials</span>
+          </div>
+          <div onclick="showPage('assessments', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-file-alt w-4"></i><span class="text-sm font-medium">Assessments</span>
+          </div>
+          <div onclick="showPage('submissions', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-inbox w-4"></i><span class="text-sm font-medium">Submissions</span>
+          </div>
+          <div onclick="showPage('results', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-trophy w-4"></i><span class="text-sm font-medium">Results</span>
+          </div>
+          <div onclick="showPage('students', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-users w-4"></i><span class="text-sm font-medium">My Students</span>
+          </div>
+          <div onclick="showPage('settings', this)" class="nav-item flex items-center gap-3 px-4 py-3 rounded-2xl text-white transition-all">
+            <i class="fas fa-cog w-4"></i><span class="text-sm font-medium">Settings</span>
+          </div>
+        </nav>
       </div>
-      <div class="w-9 h-9 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center font-bold" id="headerAvatar">L</div>
+      <div class="p-4 border-t border-purple-800">
+        <button onclick="logout()" class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 py-3 rounded-2xl text-white text-sm font-medium transition-all">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="flex-1 overflow-auto">
+      <header class="bg-white border-b px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200">
+            <i class="fas fa-bars text-gray-600"></i>
+          </button>
+          <h1 id="pageTitle" class="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
+        </div>
+        <div class="flex items-center gap-2 md:gap-3">
+          <div class="hidden md:flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-medium">
+            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+            System Online
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="text-right hidden md:block">
+              <p class="font-semibold text-gray-800 text-sm" id="headerName"></p>
+              <p class="text-xs text-gray-500">Lecturer</p>
+            </div>
+            <div class="w-9 h-9 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center font-bold ring-2 ring-purple-300 overflow-hidden" id="headerAvatar">L</div>
+          </div>
+        </div>
+      </header>
+      <div class="p-4 md:p-8" id="mainContent"></div>
     </div>
   </div>
-</header>
-    <div class="p-8" id="mainContent"></div>
-  </div>
-</div>
 
 <script>
   function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('show');
+    document.querySelector('.sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
   }
 
-  // Close sidebar when nav item clicked on mobile
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -154,25 +134,24 @@
       });
     });
   });
+
   let currentUser = {};
+  let allStudents = [];
   let questionCount = 0;
 
-  // Load user info on page load
   fetch('/auth/me').then(r => r.json()).then(data => {
     if (!data.fullName) { window.location.href = '/auth/login'; return; }
     currentUser = data;
     const initial = data.surname ? data.surname.charAt(0).toUpperCase() : data.fullName.charAt(0).toUpperCase();
-    const displayName = data.surname ? `${data.surname.toUpperCase()} ${data.firstName}` : data.fullName;
+    const displayName = data.surname ? data.surname.toUpperCase() + ' ' + data.firstName : data.fullName;
     document.getElementById('lecturerName').textContent = displayName;
     document.getElementById('headerName').textContent = displayName;
-    document.getElementById('sidebarAvatar').textContent = initial;
-    // Load profile photo if exists
-if (data.profilePhoto) {
-  setAvatarPhoto(data.profilePhoto);
-} else {
-  document.getElementById('sidebarAvatar').textContent = initial;
-}
-    document.getElementById('headerAvatar').textContent = initial;
+    if (data.profilePhoto) {
+      setAvatarPhoto(data.profilePhoto);
+    } else {
+      document.getElementById('sidebarAvatar').textContent = initial;
+      document.getElementById('headerAvatar').textContent = initial;
+    }
     if (data.staffNumber) {
       document.getElementById('sidebarStaff').style.display = 'block';
       document.getElementById('sidebarStaffText').textContent = data.staffNumber;
@@ -180,565 +159,881 @@ if (data.profilePhoto) {
     loadDashboard();
   }).catch(() => { window.location.href = '/auth/login'; });
 
+  function uploadPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('Photo must be under 2MB.'); return; }
+    const formData = new FormData();
+    formData.append('photo', file);
+    fetch('/auth/upload-photo', { method: 'POST', body: formData })
+      .then(r => r.json()).then(data => {
+        if (data.success) { setAvatarPhoto(data.photoPath); alert('Profile photo updated successfully.'); }
+        else alert(data.message || 'Upload failed.');
+      }).catch(() => alert('Server error.'));
+  }
+
+  function setAvatarPhoto(photoPath) {
+    const s = document.getElementById('sidebarAvatar');
+    const h = document.getElementById('headerAvatar');
+    if (s && photoPath) s.innerHTML = '<img src="' + photoPath + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    if (h && photoPath) h.innerHTML = '<img src="' + photoPath + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  }
+
   function showPage(page, el) {
     document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('pageTitle').textContent =
-      page === 'dashboard' ? 'Dashboard' :
-      page === 'courses' ? 'My Courses' :
-      page === 'assessments' ? 'Assessments' :
-      page === 'submissions' ? 'Submissions' :
-      page === 'results' ? 'Results' :
-      page === 'students' ? 'My Students' : 'Settings';
+    const titles = { dashboard:'Dashboard', courses:'My Courses', materials:'Course Materials', assessments:'Assessments', submissions:'Submissions', results:'Results', students:'My Students', settings:'Settings' };
+    document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
     if (page === 'dashboard') loadDashboard();
     else if (page === 'courses') loadCourses();
     else if (page === 'assessments') loadAssessments();
     else if (page === 'submissions') loadSubmissions();
-    else if (page === 'results') loadLecturerResults();
+    else if (page === 'results') loadResults();
     else if (page === 'students') loadMyStudents();
+    else if (page === 'materials') loadMaterials();
     else if (page === 'settings') loadSettings();
   }
 
   function getGreeting() {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    const h = new Date().getHours();
+    return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
   }
 
+  // ── DASHBOARD ────────────────────────────────────────
   function loadDashboard() {
-    const firstName = currentUser.fullName ? currentUser.fullName.split(' ')[0] : 'Lecturer';
-    document.getElementById('mainContent').innerHTML = `
-
-      <!-- Welcome Banner -->
-      <div class="bg-gradient-to-r from-purple-700 to-purple-900 rounded-2xl p-8 mb-8 text-white relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-64 h-full opacity-10">
-          <i class="fas fa-chalkboard-teacher text-9xl absolute right-8 top-6"></i>
-        </div>
-        <p class="text-purple-200 text-sm mb-1">${getGreeting()},</p>
-        <h2 class="text-3xl font-bold mb-2">Welcome back, ${firstName}! </h2>
-        ${currentUser.staffNumber ? `<p class="text-purple-300 text-xs mb-2">Staff No: <span class="font-bold text-white">${currentUser.staffNumber}</span></p>` : ''}
-       <p class="text-purple-200 text-sm mb-2">Here's what's happening with your courses today.</p>
-        ${currentUser.lastLogin ? `
-        <p class="text-purple-300 text-xs mb-6">
-          <i class="fas fa-clock mr-1"></i>
-          Last login: ${new Date(currentUser.lastLogin).toLocaleString('en-GB', {
-            weekday: 'short', year: 'numeric', month: 'short',
-            day: 'numeric', hour: '2-digit', minute: '2-digit'
-          })}
-        </p>` : '<p class="mb-6"></p>'}
-        <div class="flex gap-3">
-          <button onclick="showPage('assessments', document.querySelectorAll('.nav-item')[2])"
-            class="bg-white text-purple-700 px-5 py-2 rounded-xl text-sm font-bold hover:bg-purple-50 transition-all">
-            <i class="fas fa-plus mr-2"></i>New Assessment
-          </button>
-          <button onclick="showPage('submissions', document.querySelectorAll('.nav-item')[3])"
-            class="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all">
-            <i class="fas fa-inbox mr-2"></i>View Submissions
-          </button>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-book text-purple-600"></i></div>
-          <p id="statCourses" class="text-3xl font-bold text-gray-900">—</p>
-          <p class="text-sm text-gray-500 mt-1">My Courses</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-file-alt text-blue-600"></i></div>
-          <p id="statAssessments" class="text-3xl font-bold text-gray-900">—</p>
-          <p class="text-sm text-gray-500 mt-1">Assessments</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-inbox text-green-600"></i></div>
-          <p id="statSubmissions" class="text-3xl font-bold text-gray-900">—</p>
-          <p class="text-sm text-gray-500 mt-1">Submissions</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-check-circle text-pink-600"></i></div>
-          <p id="statGraded" class="text-3xl font-bold text-gray-900">—</p>
-          <p class="text-sm text-gray-500 mt-1">Graded</p>
-        </div>
-      </div>
-
-      <!-- Bottom Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 class="text-lg font-bold text-gray-900 mb-4">My Courses</h2>
-          <div id="dashCourses" class="space-y-3"><div class="text-gray-400 text-sm">Loading...</div></div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 class="text-lg font-bold text-gray-900 mb-4"> Submission Overview</h2>
-          <canvas id="submissionsChart" height="200"></canvas>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
-          <div class="space-y-3">
-            <button onclick="showPage('assessments', document.querySelectorAll('.nav-item')[2])" class="w-full flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all text-left">
-              <i class="fas fa-plus-circle text-purple-600"></i>
-              <div><p class="font-semibold text-sm text-gray-800">Create Assessment</p><p class="text-xs text-gray-500">Add objective, theory or programming test</p></div>
-            </button>
-            <button onclick="showPage('submissions', document.querySelectorAll('.nav-item')[3])" class="w-full flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all text-left">
-              <i class="fas fa-inbox text-blue-600"></i>
-              <div><p class="font-semibold text-sm text-gray-800">View Submissions</p><p class="text-xs text-gray-500">See student submissions and grades</p></div>
-            </button>
-            <button onclick="showPage('courses', document.querySelectorAll('.nav-item')[1])" class="w-full flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-all text-left">
-              <i class="fas fa-book text-green-600"></i>
-              <div><p class="font-semibold text-sm text-gray-800">My Courses</p><p class="text-xs text-gray-500">View all your assigned courses</p></div>
-            </button>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 class="text-lg font-bold text-gray-900 mb-4"> Assessment Types</h2>
-          <canvas id="assessmentTypesChart" height="200"></canvas>
-        </div>
-      </div>`;
+    const firstName = currentUser.firstName || (currentUser.fullName ? currentUser.fullName.split(' ')[0] : 'Lecturer');
+    document.getElementById('mainContent').innerHTML =
+      '<div class="bg-gradient-to-r from-purple-900 to-purple-700 rounded-2xl p-6 md:p-8 mb-6 text-white relative overflow-hidden">' +
+        '<div class="absolute right-0 top-0 w-64 h-full opacity-10"><i class="fas fa-chalkboard-teacher text-9xl absolute right-8 top-6"></i></div>' +
+        '<p class="text-purple-200 text-sm mb-1">' + getGreeting() + ',</p>' +
+        '<h2 class="text-2xl md:text-3xl font-bold mb-1">Welcome back, ' + firstName + '</h2>' +
+        (currentUser.staffNumber ? '<p class="text-purple-300 text-xs mb-2">Staff No: <span class="font-bold text-white">' + currentUser.staffNumber + '</span></p>' : '') +
+        '<p class="text-purple-200 text-sm mb-2">Here is what is happening with your courses today.</p>' +
+        (currentUser.lastLogin ? '<p class="text-purple-300 text-xs mb-4"><i class="fas fa-clock mr-1"></i>Last login: ' + new Date(currentUser.lastLogin).toLocaleString('en-GB', {weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) + '</p>' : '<p class="mb-4"></p>') +
+        '<div class="flex gap-3 flex-wrap">' +
+          '<button onclick="showPage(\'assessments\', document.querySelectorAll(\'.nav-item\')[2])" class="bg-white text-purple-700 px-5 py-2 rounded-xl text-sm font-bold hover:bg-purple-50 transition-all"><i class="fas fa-plus mr-2"></i>New Assessment</button>' +
+          '<button onclick="showPage(\'submissions\', document.querySelectorAll(\'.nav-item\')[3])" class="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all"><i class="fas fa-inbox mr-2"></i>View Submissions</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">' +
+        '<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-book text-purple-600"></i></div><p id="statCourses" class="text-3xl font-bold text-gray-900 mb-1">0</p><p class="text-sm text-gray-500">My Courses</p></div>' +
+        '<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-file-alt text-blue-600"></i></div><p id="statAssessments" class="text-3xl font-bold text-gray-900 mb-1">0</p><p class="text-sm text-gray-500">Assessments</p></div>' +
+        '<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-inbox text-green-600"></i></div><p id="statSubmissions" class="text-3xl font-bold text-gray-900 mb-1">0</p><p class="text-sm text-gray-500">Submissions</p></div>' +
+        '<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-check-circle text-pink-600"></i></div><p id="statGraded" class="text-3xl font-bold text-gray-900 mb-1">0</p><p class="text-sm text-gray-500">Graded</p></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">' +
+        '<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"><h2 class="text-lg font-bold text-gray-900 mb-4">My Courses</h2><div id="dashCourses" class="space-y-3"><p class="text-gray-400 text-sm">Loading...</p></div></div>' +
+        '<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"><h2 class="text-lg font-bold text-gray-900 mb-4">Submission Overview</h2><canvas id="submissionsChart" height="200"></canvas></div>' +
+      '</div>' +
+      '<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">' +
+        '<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"><h2 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2><div class="space-y-3">' +
+          '<button onclick="showPage(\'assessments\', document.querySelectorAll(\'.nav-item\')[2])" class="w-full flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all text-left"><i class="fas fa-plus-circle text-purple-600"></i><div><p class="font-semibold text-sm text-gray-800">Create Assessment</p><p class="text-xs text-gray-500">Add objective, theory or programming test</p></div></button>' +
+          '<button onclick="showPage(\'submissions\', document.querySelectorAll(\'.nav-item\')[3])" class="w-full flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all text-left"><i class="fas fa-inbox text-blue-600"></i><div><p class="font-semibold text-sm text-gray-800">View Submissions</p><p class="text-xs text-gray-500">See student submissions and grades</p></div></button>' +
+          '<button onclick="showPage(\'students\', document.querySelectorAll(\'.nav-item\')[5])" class="w-full flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-all text-left"><i class="fas fa-users text-green-600"></i><div><p class="font-semibold text-sm text-gray-800">My Students</p><p class="text-xs text-gray-500">View all enrolled students</p></div></button>' +
+        '</div></div>' +
+        '<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"><h2 class="text-lg font-bold text-gray-900 mb-4">Assessment Types</h2><canvas id="typesChart" height="200"></canvas></div>' +
+      '</div>';
 
     fetch('/lecturer/stats').then(r => r.json()).then(data => {
       document.getElementById('statCourses').textContent = data.totalCourses || 0;
       document.getElementById('statAssessments').textContent = data.totalAssessments || 0;
       document.getElementById('statSubmissions').textContent = data.totalSubmissions || 0;
       document.getElementById('statGraded').textContent = data.totalGraded || 0;
-
       const div = document.getElementById('dashCourses');
       if (data.courses && data.courses.length > 0) {
-        div.innerHTML = data.courses.map(c => `
-          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center text-xs font-bold">📚</div>
-              <div>
-                <p class="text-sm font-semibold text-gray-800">${c.course_code}</p>
-                <p class="text-xs text-gray-400">${c.course_title}</p>
-              </div>
-            </div>
-            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
-          </div>`).join('');
-      } else {
-        div.innerHTML = '<p class="text-gray-400 text-sm">No courses assigned yet.</p>';
-      }
-
-      // Draw Charts
+        div.innerHTML = data.courses.map(c =>
+          '<div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">' +
+            '<div class="flex items-center gap-3"><div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center"><i class="fas fa-book text-purple-600 text-xs"></i></div>' +
+            '<div><p class="text-sm font-semibold text-gray-800">' + c.course_code + '</p><p class="text-xs text-gray-400">' + c.course_title + '</p></div></div>' +
+            '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>' +
+          '</div>'
+        ).join('');
+      } else { div.innerHTML = '<p class="text-gray-400 text-sm">No courses assigned yet.</p>'; }
       setTimeout(() => {
         const subCtx = document.getElementById('submissionsChart');
         if (subCtx) {
-          new Chart(subCtx, {
-            type: 'bar',
-            data: {
-              labels: ['Total', 'Graded', 'Pending'],
-              datasets: [{
-                label: 'Submissions',
-                data: [
-                  data.totalSubmissions || 0,
-                  data.totalGraded || 0,
-                  Math.max(0, (data.totalSubmissions || 0) - (data.totalGraded || 0))
-                ],
-                backgroundColor: ['#7c3aed', '#10b981', '#f59e0b'],
-                borderRadius: 10,
-                borderSkipped: false
-              }]
-            },
-            options: {
-              responsive: true,
-              plugins: { legend: { display: false } },
-              scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                x: { grid: { display: false } }
-              }
-            }
-          });
+          new Chart(subCtx, { type:'bar', data:{ labels:['Total','Graded','Pending'], datasets:[{ data:[data.totalSubmissions||0,data.totalGraded||0,Math.max(0,(data.totalSubmissions||0)-(data.totalGraded||0))], backgroundColor:['#7c3aed','#10b981','#f59e0b'], borderRadius:10, borderSkipped:false }] }, options:{ responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } }, x:{ grid:{ display:false } } } } });
         }
-
-        const typeCtx = document.getElementById('assessmentTypesChart');
+        const typeCtx = document.getElementById('typesChart');
         if (typeCtx) {
-          new Chart(typeCtx, {
-            type: 'pie',
-            data: {
-              labels: ['Objective', 'Theory', 'Programming'],
-              datasets: [{
-                data: [
-                  Math.ceil((data.totalAssessments || 1) * 0.4),
-                  Math.ceil((data.totalAssessments || 1) * 0.4),
-                  Math.floor((data.totalAssessments || 1) * 0.2)
-                ],
-                backgroundColor: ['#ec4899', '#3b82f6', '#10b981'],
-                borderWidth: 0
-              }]
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } }
-              }
-            }
-          });
+          new Chart(typeCtx, { type:'pie', data:{ labels:['Objective','Theory','Programming'], datasets:[{ data:[Math.ceil((data.totalAssessments||1)*0.4),Math.ceil((data.totalAssessments||1)*0.4),Math.floor((data.totalAssessments||1)*0.2)], backgroundColor:['#ec4899','#3b82f6','#10b981'], borderWidth:0 }] }, options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{ padding:12, font:{ size:11 } } } } } });
         }
       }, 100);
-
     }).catch(() => {});
   }
-  
-  function loadCourses() {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">My Courses</h2></div>
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4" id="coursesList">
-          <div class="text-gray-400 text-sm">Loading courses...</div>
-        </div>
-      </div>`;
 
+  // ── COURSES ──────────────────────────────────────────
+  function loadCourses() {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+        '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">My Assigned Courses</h2></div>' +
+        '<div class="p-6" id="coursesList"><p class="text-gray-400 text-sm">Loading...</p></div>' +
+      '</div>';
     fetch('/lecturer/courses').then(r => r.json()).then(data => {
       const div = document.getElementById('coursesList');
-      if (!data.courses || data.courses.length === 0) {
-        div.innerHTML = '<p class="text-gray-400 text-sm">No courses assigned yet.</p>'; return;
-      }
-      div.innerHTML = data.courses.map(c => `
-        <div class="border-2 border-gray-100 hover:border-purple-300 rounded-2xl p-6 transition-all">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center font-bold">📚</div>
-            <div>
-              <p class="font-bold text-gray-800">${c.course_code}</p>
-              <p class="text-xs text-gray-500">${c.course_title}</p>
-            </div>
-          </div>
-          <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">Active</span>
-        </div>`).join('');
+      if (!data.courses || data.courses.length === 0) { div.innerHTML = '<p class="text-gray-400 text-sm">No courses assigned yet.</p>'; return; }
+      div.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">' +
+        data.courses.map(c =>
+          '<div class="border-2 border-gray-100 hover:border-purple-300 rounded-2xl p-5 transition-all">' +
+            '<div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"><i class="fas fa-book text-purple-600"></i></div><div><p class="font-bold text-gray-800">' + c.course_code + '</p><p class="text-xs text-gray-500">' + c.course_title + '</p></div></div>' +
+            '<span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">Active</span>' +
+          '</div>'
+        ).join('') + '</div>';
     }).catch(() => {});
   }
 
-  function loadAssessments() {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Create New Assessment</h2></div>
-          <div class="p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Title</label>
-                <input type="text" id="assessTitle" placeholder="e.g. Mid-Semester Exam"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Type</label>
-                <select id="assessType" onchange="showQuestionForm()"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
-                  <option value="">Select Type</option>
-                  <option value="objective">Objective (MCQ / True-False)</option>
-                  <option value="theory">Theory (Keyword-based)</option>
-                  <option value="programming">Programming (Test Cases)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Course</label>
-                <select id="assessCourse"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none appearance-none">
-                  <option value="">Select Course</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Duration (minutes)</label>
-                <input type="number" id="assessDuration" value="30"
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-              </div>
-            </div>
+  // ── COURSE MATERIALS ─────────────────────────────────
+  function loadMaterials() {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="space-y-6">' +
+        '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+          '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Upload Course Material</h2></div>' +
+          '<div class="p-6">' +
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Course</label><select id="materialCourse" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"><option value="">Select Course</option></select></div>' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Title</label><input type="text" id="materialTitle" placeholder="e.g. Week 3 Lecture Slides" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/></div>' +
+            '</div>' +
+            '<div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-2">File (PDF, PPT, DOC, ZIP - max 10MB)</label><input type="file" id="materialFile" accept=".pdf,.ppt,.pptx,.doc,.docx,.zip" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/></div>' +
+            '<div id="materialMsg" class="hidden text-sm font-medium mb-3"></div>' +
+            '<button onclick="uploadMaterial()" class="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-xl text-sm font-semibold"><i class="fas fa-upload mr-2"></i>Upload Material</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+          '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Uploaded Materials</h2></div>' +
+          '<div class="p-6" id="materialsList"><p class="text-gray-400 text-sm">Loading...</p></div>' +
+        '</div>' +
+      '</div>';
 
-            <div id="questionForm" class="hidden mt-4 border-t pt-4">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-gray-800">Add Questions</h3>
-                <span id="questionCount" class="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-semibold">0 questions added</span>
-              </div>
-              <div id="questionFields"></div>
-              <button onclick="addQuestion()" class="mt-4 flex items-center gap-2 text-purple-700 hover:text-purple-900 text-sm font-semibold">
-                <i class="fas fa-plus-circle"></i> Add Another Question
-              </button>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button onclick="saveAssessment(false)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold">
-                <i class="fas fa-save mr-2"></i>Save as Draft
-              </button>
-              <button onclick="saveAssessment(true)" class="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-xl text-sm font-semibold">
-                <i class="fas fa-paper-plane mr-2"></i>Publish Assessment
-              </button>
-            </div>
-            <div id="assessMsg" class="hidden text-sm font-medium mt-2"></div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">My Assessments</h2></div>
-          <div class="p-6">
-            <table class="w-full text-sm">
-              <thead><tr class="text-left text-gray-500 border-b">
-                <th class="pb-3 font-semibold">Title</th>
-                <th class="pb-3 font-semibold">Type</th>
-                <th class="pb-3 font-semibold">Course</th>
-               <th class="pb-3 font-semibold">Status</th>
-              <th class="pb-3 font-semibold">Analytics</th>
-            </tr></thead>
-            <tbody id="assessmentsList">
-              <tr><td colspan="5" class="py-4 text-gray-400 text-sm">No assessments yet.</td></tr>
-            </tbody>
-            </table>
-          </div>
-        </div>
-      </div>`;
-
-    fetchLecturerCourses();
-    fetchLecturerAssessments();
+    loadCoursesIntoSelect_Materials();
+    fetchMaterials();
   }
 
-  function fetchLecturerCourses() {
+  function loadCoursesIntoSelect_Materials() {
     fetch('/lecturer/courses').then(r => r.json()).then(data => {
-      const sel = document.getElementById('assessCourse');
-      if (sel && data.courses) {
-        data.courses.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.course_id;
-          opt.textContent = `${c.course_code} - ${c.course_title}`;
-          sel.appendChild(opt);
-        });
-      }
+      const select = document.getElementById('materialCourse');
+      if (!select) return;
+      (data.courses||[]).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.course_id;
+        opt.textContent = c.course_code + ' - ' + c.course_title;
+        select.appendChild(opt);
+      });
+    });
+  }
+
+  function uploadMaterial() {
+    const courseId = document.getElementById('materialCourse').value;
+    const title = document.getElementById('materialTitle').value.trim();
+    const fileInput = document.getElementById('materialFile');
+    const msg = document.getElementById('materialMsg');
+
+    if (!courseId || !title || !fileInput.files[0]) {
+      msg.textContent = 'Course, title and file are all required.';
+      msg.className = 'text-sm font-medium text-red-600'; msg.classList.remove('hidden'); return;
+    }
+    if (fileInput.files[0].size > 10 * 1024 * 1024) {
+      msg.textContent = 'File must be under 10MB.';
+      msg.className = 'text-sm font-medium text-red-600'; msg.classList.remove('hidden'); return;
+    }
+
+    const formData = new FormData();
+    formData.append('courseId', courseId);
+    formData.append('title', title);
+    formData.append('file', fileInput.files[0]);
+
+    msg.textContent = 'Uploading...'; msg.className = 'text-sm font-medium text-blue-600'; msg.classList.remove('hidden');
+
+    fetch('/lecturer/materials/upload', { method:'POST', body:formData })
+      .then(r => r.json()).then(data => {
+        if (data.success) {
+          alert('Material uploaded successfully.');
+          document.getElementById('materialTitle').value = '';
+          fileInput.value = '';
+          msg.classList.add('hidden');
+          fetchMaterials();
+        } else {
+          msg.textContent = data.message||'Upload failed.';
+          msg.className = 'text-sm font-medium text-red-600';
+        }
+      }).catch(() => { msg.textContent = 'Server error.'; msg.className = 'text-sm font-medium text-red-600'; });
+  }
+
+  function fetchMaterials() {
+    fetch('/lecturer/materials').then(r => r.json()).then(data => {
+      const div = document.getElementById('materialsList');
+      if (!data.materials || data.materials.length === 0) { div.innerHTML = '<p class="text-gray-400 text-sm">No materials uploaded yet.</p>'; return; }
+      div.innerHTML = data.materials.map(m =>
+        '<div class="flex items-center justify-between p-4 border-2 border-gray-100 hover:border-purple-200 rounded-xl mb-3 transition-all flex-wrap gap-3">' +
+          '<div class="flex items-center gap-4">' +
+            '<div class="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-100"><i class="fas fa-file text-purple-600"></i></div>' +
+            '<div><p class="font-bold text-gray-800">' + m.title + '</p><p class="text-xs text-gray-500">' + m.course_code + ' - ' + m.file_type + ' - ' + new Date(m.uploaded_at).toLocaleDateString('en-GB') + '</p></div>' +
+          '</div>' +
+          '<div class="flex items-center gap-2">' +
+            '<a href="' + m.file_path + '" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-lg"><i class="fas fa-download mr-1"></i>Download</a>' +
+            '<button onclick="deleteMaterial(' + m.material_id + ', \'' + m.title.replace(/'/g,"\\'") + '\')" class="text-red-500 hover:text-red-700 text-xs font-semibold px-3 py-1.5 bg-red-50 rounded-lg"><i class="fas fa-trash mr-1"></i>Delete</button>' +
+          '</div>' +
+        '</div>'
+      ).join('');
     }).catch(() => {});
   }
 
-  function fetchLecturerAssessments() {
-    fetch('/lecturer/assessments').then(r => r.json()).then(data => {
-      const tbody = document.getElementById('assessmentsList');
-      if (!data.assessments || data.assessments.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-gray-400 text-sm">No assessments yet.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = data.assessments.map(a => `
-        <tr class="hover:bg-gray-50">
-          <td class="py-3 font-medium text-gray-800">${a.title}</td>
-          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">${a.type}</span></td>
-          <td class="py-3 text-gray-500">${a.course_code || '—'}</td>
-          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${a.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${a.is_published ? 'Published' : 'Draft'}</span></td>
-          <td class="py-3">
-            <button onclick="viewAnalytics(${a.assessment_id}, '${a.title}')"
-              class="text-purple-600 hover:text-purple-800 text-xs font-semibold flex items-center gap-1">
-              <i class="fas fa-chart-bar"></i> View
-            </button>
-          </td>
-        </tr>`).join('');
-    }).catch(() => {});
+  function deleteMaterial(id, title) {
+    if (!confirm('Delete "' + title + '"?')) return;
+    fetch('/lecturer/materials/delete/' + id, { method:'DELETE' })
+      .then(r => r.json()).then(data => {
+        if (data.success) { alert('Material deleted successfully.'); fetchMaterials(); }
+        else alert('Failed to delete material.');
+      }).catch(() => alert('Server error.'));
   }
-
-  function showQuestionForm() {
-    const type = document.getElementById('assessType').value;
-    if (!type) return;
-    document.getElementById('questionForm').classList.remove('hidden');
+  
+  // ── ASSESSMENTS ──────────────────────────────────────
+  function loadAssessments() {
     questionCount = 0;
-    document.getElementById('questionFields').innerHTML = '';
-    document.getElementById('questionCount').textContent = '0 questions added';
-    addQuestion();
+    document.getElementById('mainContent').innerHTML =
+      '<div class="space-y-6">' +
+        '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+          '<div class="p-6 border-b flex items-center justify-between"><h2 class="text-lg font-bold text-gray-900">Create New Assessment</h2><button onclick="toggleCreateForm()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"><i class="fas fa-plus"></i> New Assessment</button></div>' +
+          '<div id="createForm" class="hidden p-6 border-b bg-purple-50">' +
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Title</label><input type="text" id="assessTitle" placeholder="e.g. CSC301 Mid-Semester Test" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none bg-white"/></div>' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Course</label><select id="assessCourse" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none bg-white"><option value="">Select Course</option></select></div>' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Type</label><select id="assessType" onchange="updateQuestionForm()" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none bg-white"><option value="">Select Type</option><option value="objective">Objective (MCQ)</option><option value="theory">Theory</option><option value="programming">Programming</option></select></div>' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Duration (minutes)</label><input type="number" id="assessDuration" value="30" min="5" max="180" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none bg-white"/></div>' +
+              '<div><label class="block text-sm font-semibold text-gray-700 mb-2">Total Marks</label><input type="number" id="assessTotalMarks" value="100" min="1" max="500" placeholder="e.g. 50, 100, 20" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none bg-white"/><p class="text-xs text-gray-400 mt-1">Set total score e.g. 50/50 or 20/20</p></div>' +
+              '<div class="flex items-end"><label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" id="assessPublish" class="w-5 h-5"/><div><p class="text-sm font-semibold text-gray-700">Publish immediately</p><p class="text-xs text-gray-400">Students notified by email</p></div></label></div>' +
+            '</div>' +
+            '<div id="questionsSection" class="hidden">' +
+              '<div class="flex items-center justify-between mb-3"><h3 class="font-bold text-gray-800">Questions</h3>' +
+                '<div class="flex gap-2"><button onclick="addQuestion()" class="bg-purple-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-purple-800"><i class="fas fa-plus mr-1"></i>Add Question</button><button onclick="showBulkUpload()" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-blue-700"><i class="fas fa-upload mr-1"></i>Bulk Upload</button></div>' +
+              '</div>' +
+              '<div id="questionsList" class="space-y-4"></div>' +
+            '</div>' +
+            '<div id="bulkUploadModal" class="hidden mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">' +
+              '<h3 class="font-bold text-gray-800 mb-2">Bulk Upload Questions</h3>' +
+              '<p class="text-xs text-gray-600 mb-3">Paste questions using pipe separator - one per line:</p>' +
+              '<div class="bg-white rounded-xl p-3 mb-3 text-xs font-mono text-gray-600 border border-gray-200">' +
+                '<p class="font-bold text-gray-800 mb-1">Objective:</p><p>What is 2+2?|A. 3|B. 4|C. 5|D. 6|B|1</p><p class="text-gray-400">(Question|OptA|OptB|OptC|OptD|Answer|Marks)</p>' +
+                '<p class="font-bold text-gray-800 mt-2 mb-1">Theory:</p><p>Explain OOP|object,class,inheritance|5</p><p class="text-gray-400">(Question|Keywords|Marks)</p>' +
+                '<p class="font-bold text-gray-800 mt-2 mb-1">Programming:</p><p>Write hello world|print("Hello World")|10</p><p class="text-gray-400">(Question|ExpectedOutput|Marks)</p>' +
+              '</div>' +
+              '<textarea id="bulkText" rows="6" placeholder="Paste your questions here..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm outline-none resize-none font-mono bg-white"></textarea>' +
+              '<div class="flex gap-3 mt-3"><button onclick="processBulkUpload()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700"><i class="fas fa-check mr-1"></i>Process</button><button onclick="document.getElementById(\'bulkUploadModal\').classList.add(\'hidden\')" class="bg-white border-2 border-gray-200 text-gray-600 px-5 py-2 rounded-xl text-sm font-semibold">Cancel</button></div>' +
+            '</div>' +
+            '<div id="createMsg" class="hidden mt-3 text-sm font-medium"></div>' +
+            '<div class="flex gap-3 mt-4 flex-wrap"><button onclick="saveAssessment(false)" class="bg-gray-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-gray-700">Save as Draft</button><button onclick="saveAssessment(true)" class="bg-purple-700 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:bg-purple-800">Save and Publish</button><button onclick="toggleCreateForm()" class="bg-white border-2 border-gray-200 text-gray-600 px-6 py-2 rounded-xl text-sm font-semibold">Cancel</button></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+          '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">My Assessments</h2></div>' +
+          '<div class="p-6" id="assessmentsList"><p class="text-gray-400 text-sm">Loading...</p></div>' +
+        '</div>' +
+      '</div>';
+    fetchLecturerAssessments();
+    loadCoursesIntoSelect();
+  }
+
+  function toggleCreateForm() {
+    document.getElementById('createForm').classList.toggle('hidden');
+    loadCoursesIntoSelect();
+  }
+
+  function updateQuestionForm() {
+    const type = document.getElementById('assessType').value;
+    const section = document.getElementById('questionsSection');
+    if (type) {
+      section.classList.remove('hidden');
+      if (document.getElementById('questionsList').children.length === 0) addQuestion();
+    } else { section.classList.add('hidden'); }
   }
 
   function addQuestion() {
     const type = document.getElementById('assessType').value;
+    if (!type) { alert('Please select an assessment type first.'); return; }
     questionCount++;
+    const qId = 'q_' + questionCount;
     const div = document.createElement('div');
-    div.className = 'bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200';
-
+    div.id = qId; div.className = 'bg-white border-2 border-gray-200 rounded-xl p-4';
     if (type === 'objective') {
-      div.innerHTML = `
-        <p class="text-sm font-bold text-gray-700 mb-3">Question ${questionCount}</p>
-        <input type="text" placeholder="Question text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="qtext${questionCount}"/>
-        <div class="grid grid-cols-2 gap-2 mb-3">
-          <input type="text" placeholder="Option A" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optA${questionCount}"/>
-          <input type="text" placeholder="Option B" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optB${questionCount}"/>
-          <input type="text" placeholder="Option C" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optC${questionCount}"/>
-          <input type="text" placeholder="Option D" class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="optD${questionCount}"/>
-        </div>
-        <div class="flex items-center gap-4">
-          <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="correct${questionCount}">
-            <option value="">Correct Answer</option>
-            <option value="A">A</option><option value="B">B</option>
-            <option value="C">C</option><option value="D">D</option>
-          </select>
-          <input type="number" placeholder="Marks" value="1" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="marks${questionCount}"/>
-        </div>`;
+      div.innerHTML = '<div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-700 text-sm">Question ' + questionCount + '</p><button onclick="document.getElementById(\'' + qId + '\').remove()" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>' +
+        '<input type="text" placeholder="Question text" name="' + qId + '_text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none focus:border-purple-400 bg-gray-50"/>' +
+        '<div class="grid grid-cols-2 gap-2 mb-3"><input type="text" placeholder="Option A" name="' + qId + '_optA" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/><input type="text" placeholder="Option B" name="' + qId + '_optB" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/><input type="text" placeholder="Option C" name="' + qId + '_optC" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/><input type="text" placeholder="Option D" name="' + qId + '_optD" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/></div>' +
+        '<div class="flex items-center gap-3"><select name="' + qId + '_correct" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"><option value="">Correct Answer</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select><input type="number" placeholder="Marks" name="' + qId + '_marks" value="1" min="1" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/></div>';
     } else if (type === 'theory') {
-      div.innerHTML = `
-        <p class="text-sm font-bold text-gray-700 mb-3">Question ${questionCount}</p>
-        <input type="text" placeholder="Question text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="qtext${questionCount}"/>
-        <input type="text" placeholder="Keywords (comma-separated, e.g. database, SQL, query)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="keywords${questionCount}"/>
-        <input type="number" placeholder="Marks" value="5" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="marks${questionCount}"/>`;
-    } else if (type === 'programming') {
-      div.innerHTML = `
-        <p class="text-sm font-bold text-gray-700 mb-3">Question ${questionCount}</p>
-        <input type="text" placeholder="Question text (e.g. Write a function to find factorial)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none" id="qtext${questionCount}"/>
-        <textarea placeholder="Expected output / test cases (e.g. factorial(5) = 120)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:border-purple-500 outline-none h-20 resize-none" id="testcase${questionCount}"></textarea>
-        <input type="number" placeholder="Marks" value="10" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-purple-500 outline-none" id="marks${questionCount}"/>`;
+      div.innerHTML = '<div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-700 text-sm">Question ' + questionCount + '</p><button onclick="document.getElementById(\'' + qId + '\').remove()" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>' +
+        '<input type="text" placeholder="Question text" name="' + qId + '_text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none focus:border-purple-400 bg-gray-50"/>' +
+        '<input type="text" placeholder="Keywords (comma separated) e.g. polymorphism,inheritance,class" name="' + qId + '_keywords" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none focus:border-purple-400 bg-gray-50"/>' +
+        '<input type="number" placeholder="Marks" name="' + qId + '_marks" value="5" min="1" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/>';
+    } else {
+      div.innerHTML = '<div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-700 text-sm">Question ' + questionCount + '</p><button onclick="document.getElementById(\'' + qId + '\').remove()" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>' +
+        '<input type="text" placeholder="Question text" name="' + qId + '_text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none focus:border-purple-400 bg-gray-50"/>' +
+        '<textarea placeholder="Expected output or test case" name="' + qId + '_testcase" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none focus:border-purple-400 resize-none font-mono bg-gray-900 text-green-400"></textarea>' +
+        '<input type="number" placeholder="Marks" name="' + qId + '_marks" value="10" min="1" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-purple-400 bg-gray-50"/>';
     }
-
-    document.getElementById('questionFields').appendChild(div);
-    document.getElementById('questionCount').textContent = `${questionCount} question${questionCount > 1 ? 's' : ''} added`;
+    document.getElementById('questionsList').appendChild(div);
   }
 
-  function saveAssessment(publish) {
-    const title = document.getElementById('assessTitle').value;
+  function showBulkUpload() {
+    document.getElementById('bulkUploadModal').classList.remove('hidden');
+  }
+
+  function processBulkUpload() {
     const type = document.getElementById('assessType').value;
-    const courseId = document.getElementById('assessCourse').value;
-    const duration = document.getElementById('assessDuration').value;
-    const msg = document.getElementById('assessMsg');
-
-    if (!title || !type || !courseId) {
-      msg.textContent = 'Please fill in all fields.';
-      msg.className = 'text-sm font-medium text-red-600';
-      msg.classList.remove('hidden'); return;
-    }
-
-    // Collect questions
-    const questions = [];
-    for (let i = 1; i <= questionCount; i++) {
-      const qtext = document.getElementById(`qtext${i}`)?.value;
-      if (!qtext) continue;
-      const q = { question_text: qtext, question_type: type === 'objective' ? 'mcq' : type, marks: document.getElementById(`marks${i}`)?.value || 1 };
-      if (type === 'objective') {
-        q.options = { A: document.getElementById(`optA${i}`)?.value, B: document.getElementById(`optB${i}`)?.value, C: document.getElementById(`optC${i}`)?.value, D: document.getElementById(`optD${i}`)?.value };
-        q.correct_answer = document.getElementById(`correct${i}`)?.value;
-      } else if (type === 'theory') {
-        q.keywords = document.getElementById(`keywords${i}`)?.value;
-      } else if (type === 'programming') {
-        q.test_case = document.getElementById(`testcase${i}`)?.value;
+    const text = document.getElementById('bulkText').value.trim();
+    if (!type) { alert('Please select an assessment type first.'); return; }
+    if (!text) { alert('Please paste your questions first.'); return; }
+    const lines = text.split('\n').filter(l => l.trim() !== '');
+    let added = 0;
+    lines.forEach(line => {
+      const parts = line.split('|');
+      if (type === 'objective' && parts.length >= 7) {
+        questionCount++;
+        const qId = 'q_' + questionCount;
+        const div = document.createElement('div');
+        div.id = qId; div.className = 'bg-white border-2 border-gray-200 rounded-xl p-4';
+        div.innerHTML = '<div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-700 text-sm">Question ' + questionCount + '</p><button onclick="document.getElementById(\'' + qId + '\').remove()" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>' +
+          '<input type="text" value="' + parts[0].trim() + '" name="' + qId + '_text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none bg-gray-50"/>' +
+          '<div class="grid grid-cols-2 gap-2 mb-3"><input type="text" value="' + parts[1].replace(/^A\.\s*/,'').trim() + '" name="' + qId + '_optA" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/><input type="text" value="' + parts[2].replace(/^B\.\s*/,'').trim() + '" name="' + qId + '_optB" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/><input type="text" value="' + parts[3].replace(/^C\.\s*/,'').trim() + '" name="' + qId + '_optC" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/><input type="text" value="' + parts[4].replace(/^D\.\s*/,'').trim() + '" name="' + qId + '_optD" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/></div>' +
+          '<div class="flex items-center gap-3"><select name="' + qId + '_correct" class="px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"><option value="A" ' + (parts[5].trim()==='A'?'selected':'') + '>A</option><option value="B" ' + (parts[5].trim()==='B'?'selected':'') + '>B</option><option value="C" ' + (parts[5].trim()==='C'?'selected':'') + '>C</option><option value="D" ' + (parts[5].trim()==='D'?'selected':'') + '>D</option></select><input type="number" value="' + parts[6].trim() + '" name="' + qId + '_marks" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/></div>';
+        document.getElementById('questionsList').appendChild(div); added++;
+      } else if (type === 'theory' && parts.length >= 3) {
+        questionCount++;
+        const qId = 'q_' + questionCount;
+        const div = document.createElement('div');
+        div.id = qId; div.className = 'bg-white border-2 border-gray-200 rounded-xl p-4';
+        div.innerHTML = '<div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-700 text-sm">Question ' + questionCount + '</p><button onclick="document.getElementById(\'' + qId + '\').remove()" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>' +
+          '<input type="text" value="' + parts[0].trim() + '" name="' + qId + '_text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none bg-gray-50"/>' +
+          '<input type="text" value="' + parts[1].trim() + '" name="' + qId + '_keywords" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none bg-gray-50"/>' +
+          '<input type="number" value="' + parts[2].trim() + '" name="' + qId + '_marks" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/>';
+        document.getElementById('questionsList').appendChild(div); added++;
+      } else if (type === 'programming' && parts.length >= 3) {
+        questionCount++;
+        const qId = 'q_' + questionCount;
+        const div = document.createElement('div');
+        div.id = qId; div.className = 'bg-white border-2 border-gray-200 rounded-xl p-4';
+        div.innerHTML = '<div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-700 text-sm">Question ' + questionCount + '</p><button onclick="document.getElementById(\'' + qId + '\').remove()" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>' +
+          '<input type="text" value="' + parts[0].trim() + '" name="' + qId + '_text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none bg-gray-50"/>' +
+          '<textarea name="' + qId + '_testcase" rows="3" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 outline-none font-mono resize-none bg-gray-900 text-green-400">' + parts[1].trim() + '</textarea>' +
+          '<input type="number" value="' + parts[2].trim() + '" name="' + qId + '_marks" class="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-gray-50"/>';
+        document.getElementById('questionsList').appendChild(div); added++;
       }
-      questions.push(q);
-    }
+    });
+    document.getElementById('bulkUploadModal').classList.add('hidden');
+    document.getElementById('bulkText').value = '';
+    document.getElementById('questionsSection').classList.remove('hidden');
+    alert(added + ' question(s) added successfully.');
+  }
 
-    fetch('/lecturer/assessments/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, type, courseId, duration, publish, questions })
-    }).then(r => r.json()).then(data => {
-      if (data.success) {
-        msg.textContent = publish ? '✅ Assessment published successfully!' : '✅ Assessment saved as draft!';
-        msg.className = 'text-sm font-medium text-green-600';
-        msg.classList.remove('hidden');
-        fetchLecturerAssessments();
-      } else {
-        msg.textContent = data.message || 'Failed to save assessment.';
-        msg.className = 'text-sm font-medium text-red-600';
-        msg.classList.remove('hidden');
+  function loadCoursesIntoSelect() {
+    fetch('/lecturer/courses').then(r => r.json()).then(data => {
+      const select = document.getElementById('assessCourse');
+      if (!select) return;
+      const existing = Array.from(select.options).map(o => o.value);
+      if (data.courses) {
+        data.courses.forEach(c => {
+          if (!existing.includes(String(c.course_id))) {
+            const opt = document.createElement('option');
+            opt.value = c.course_id;
+            opt.textContent = c.course_code + ' - ' + c.course_title;
+            select.appendChild(opt);
+          }
+        });
       }
-    }).catch(() => {
-      msg.textContent = 'Server error. Please try again.';
-      msg.className = 'text-sm font-medium text-red-600';
-      msg.classList.remove('hidden');
     });
   }
 
+  function saveAssessment(publish) {
+    const title = document.getElementById('assessTitle').value.trim();
+    const courseId = document.getElementById('assessCourse').value;
+    const type = document.getElementById('assessType').value;
+    const duration = document.getElementById('assessDuration').value;
+    const totalMarks = document.getElementById('assessTotalMarks').value;
+    const msg = document.getElementById('createMsg');
+    if (!title || !courseId || !type) { msg.textContent = 'Please fill in all required fields.'; msg.className = 'text-sm font-medium text-red-600'; msg.classList.remove('hidden'); return; }
+    const questions = [];
+    document.querySelectorAll('#questionsList > div').forEach(div => {
+      const id = div.id;
+      const text = div.querySelector('[name="' + id + '_text"]') ? div.querySelector('[name="' + id + '_text"]').value.trim() : '';
+      if (!text) return;
+      if (type === 'objective') {
+        questions.push({ question_text:text, question_type:'mcq', marks:parseInt(div.querySelector('[name="' + id + '_marks"]').value)||1, options:{ A:div.querySelector('[name="' + id + '_optA"]').value.trim(), B:div.querySelector('[name="' + id + '_optB"]').value.trim(), C:div.querySelector('[name="' + id + '_optC"]').value.trim(), D:div.querySelector('[name="' + id + '_optD"]').value.trim() }, correct_answer:div.querySelector('[name="' + id + '_correct"]').value });
+      } else if (type === 'theory') {
+        questions.push({ question_text:text, question_type:'theory', marks:parseInt(div.querySelector('[name="' + id + '_marks"]').value)||5, keywords:div.querySelector('[name="' + id + '_keywords"]').value.trim() });
+      } else {
+        questions.push({ question_text:text, question_type:'programming', marks:parseInt(div.querySelector('[name="' + id + '_marks"]').value)||10, test_case:div.querySelector('[name="' + id + '_testcase"]').value.trim() });
+      }
+    });
+    msg.textContent = 'Saving...'; msg.className = 'text-sm font-medium text-blue-600'; msg.classList.remove('hidden');
+    fetch('/lecturer/assessments/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title,type,courseId,duration,totalMarks,publish,questions}) })
+      .then(r => r.json()).then(data => {
+        if (data.success) { alert(publish?'Assessment published successfully.':'Assessment saved as draft.'); toggleCreateForm(); fetchLecturerAssessments(); questionCount=0; document.getElementById('questionsList').innerHTML=''; }
+        else { msg.textContent = data.message||'Failed to save.'; msg.className = 'text-sm font-medium text-red-600'; }
+      }).catch(() => { msg.textContent = 'Server error.'; msg.className = 'text-sm font-medium text-red-600'; });
+  }
+
+  function fetchLecturerAssessments() {
+    fetch('/lecturer/assessments').then(r => r.json()).then(data => {
+      const div = document.getElementById('assessmentsList');
+      if (!div) return;
+      if (!data.assessments || data.assessments.length === 0) { div.innerHTML = '<p class="text-gray-400 text-sm">No assessments yet. Create one above.</p>'; return; }
+      div.innerHTML = data.assessments.map(a =>
+        '<div class="flex items-center justify-between p-4 border-2 border-gray-100 hover:border-purple-200 rounded-xl mb-3 transition-all flex-wrap gap-3">' +
+          '<div class="flex items-center gap-4">' +
+            '<div class="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-100"><i class="fas ' + (a.type==='objective'?'fa-list-ul':a.type==='theory'?'fa-pen-alt':'fa-code') + ' text-purple-600"></i></div>' +
+            '<div><p class="font-bold text-gray-800">' + a.title + '</p><p class="text-xs text-gray-500">' + a.course_code + ' - ' + a.type + ' - ' + a.total_marks + ' marks - ' + a.duration_minutes + ' mins</p>' +
+            '<span class="text-xs px-2 py-0.5 rounded-full font-semibold mt-1 inline-block ' + (a.is_published?'bg-green-100 text-green-700':'bg-gray-100 text-gray-600') + '">' + (a.is_published?'Published':'Draft') + '</span></div>' +
+          '</div>' +
+          '<div class="flex items-center gap-2 flex-wrap">' +
+            '<button onclick="viewAnalytics(' + a.assessment_id + ', \'' + a.title.replace(/'/g,"\\'") + '\')" class="text-purple-600 hover:text-purple-800 text-xs font-semibold px-3 py-1.5 bg-purple-50 rounded-lg"><i class="fas fa-chart-bar mr-1"></i>Analytics</button>' +
+            '<button onclick="previewAssessment(' + a.assessment_id + ', \'' + a.title.replace(/'/g,"\\'") + '\')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold px-3 py-1.5 bg-blue-50 rounded-lg"><i class="fas fa-eye mr-1"></i>Preview</button>' +
+            '<button onclick="deleteAssessment(' + a.assessment_id + ', \'' + a.title.replace(/'/g,"\\'") + '\')" class="text-red-500 hover:text-red-700 text-xs font-semibold px-3 py-1.5 bg-red-50 rounded-lg"><i class="fas fa-trash mr-1"></i>Delete</button>' +
+          '</div>' +
+        '</div>'
+      ).join('');
+    }).catch(() => {});
+  }
+
+  function deleteAssessment(id, title) {
+    if (!confirm('Delete "' + title + '"? This will also delete all student submissions.')) return;
+    fetch('/lecturer/assessments/delete/' + id, { method:'DELETE' })
+      .then(r => r.json()).then(data => {
+        if (data.success) { alert('Assessment deleted successfully.'); fetchLecturerAssessments(); }
+        else alert('Failed to delete assessment.');
+      }).catch(() => alert('Server error.'));
+  }
+
+  // ── ANALYTICS ────────────────────────────────────────
+  function viewAnalytics(assessmentId, title) {
+    const overlay = document.createElement('div');
+    overlay.id = 'analyticsOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:white;border-radius:24px;width:100%;max-width:800px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="background:linear-gradient(135deg,#1a0a35,#7c3aed);padding:24px 28px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;"><div><h2 style="color:white;font-size:18px;font-weight:800;margin:0;">' + title + '</h2><p style="color:#e9d5ff;font-size:12px;margin:4px 0 0;">Per-Question Analytics</p></div><button onclick="document.getElementById(\'analyticsOverlay\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;">x</button></div><div id="analyticsContent" style="padding:24px;"><div style="text-align:center;padding:40px;"><div style="width:40px;height:40px;border:3px solid #7c3aed;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px;"></div><p style="color:#6b7280;">Loading analytics...</p></div></div></div>';
+    if (!document.getElementById('spinStyle')) { const s=document.createElement('style');s.id='spinStyle';s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';document.head.appendChild(s); }
+    document.body.appendChild(overlay);
+    fetch('/lecturer/assessments/' + assessmentId + '/analytics').then(r => r.json()).then(data => {
+      if (!data.success) { document.getElementById('analyticsContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to load analytics.</p>'; return; }
+      const total = data.assessment.total_submissions || 0;
+      document.getElementById('analyticsContent').innerHTML =
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">' +
+          '<div style="background:#f5f3ff;border-radius:16px;padding:20px;text-align:center;"><p style="font-size:28px;font-weight:800;color:#7c3aed;margin:0;">' + total + '</p><p style="font-size:12px;color:#6b7280;margin:4px 0 0;">Submissions</p></div>' +
+          '<div style="background:#f0fdf4;border-radius:16px;padding:20px;text-align:center;"><p style="font-size:28px;font-weight:800;color:#16a34a;margin:0;">' + data.questions.length + '</p><p style="font-size:12px;color:#6b7280;margin:4px 0 0;">Questions</p></div>' +
+          '<div style="background:#eff6ff;border-radius:16px;padding:20px;text-align:center;"><p style="font-size:28px;font-weight:800;color:#2563eb;margin:0;">' + data.assessment.total_marks + '</p><p style="font-size:12px;color:#6b7280;margin:4px 0 0;">Total Marks</p></div>' +
+        '</div>' +
+        '<h3 style="font-size:16px;font-weight:700;color:#111827;margin-bottom:16px;">Question Breakdown</h3>' +
+        (data.questions.length === 0 ? '<p style="color:#9ca3af;text-align:center;padding:20px;">No submissions yet.</p>' :
+          data.questions.map((q,i) => {
+            const cp = total > 0 ? Math.round((q.correct_count/total)*100) : 0;
+            const wp = total > 0 ? Math.round((q.wrong_count/total)*100) : 0;
+            const diff = cp >= 70 ? 'Easy' : cp >= 40 ? 'Medium' : 'Hard';
+            const dc = cp >= 70 ? '#16a34a' : cp >= 40 ? '#d97706' : '#dc2626';
+            const db = cp >= 70 ? '#f0fdf4' : cp >= 40 ? '#fffbeb' : '#fef2f2';
+            return '<div style="border:1.5px solid #e5e7eb;border-radius:16px;padding:20px;margin-bottom:16px;">' +
+              '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;">' +
+                '<div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="background:#7c3aed;color:white;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">' + (i+1) + '</span><p style="font-size:14px;font-weight:600;color:#111827;margin:0;">' + q.question_text + '</p></div>' +
+                '<div style="display:flex;gap:8px;flex-wrap:wrap;"><span style="background:#f3f4f6;color:#6b7280;padding:3px 10px;border-radius:20px;font-size:11px;">' + q.question_type + '</span><span style="background:#f3f4f6;color:#6b7280;padding:3px 10px;border-radius:20px;font-size:11px;">' + q.marks + ' mark' + (q.marks>1?'s':'') + '</span><span style="background:' + db + ';color:' + dc + ';padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">' + diff + '</span></div></div>' +
+                '<div style="text-align:center;flex-shrink:0;"><p style="font-size:28px;font-weight:800;color:' + dc + ';margin:0;">' + cp + '%</p><p style="font-size:11px;color:#6b7280;margin:2px 0 0;">Correct</p></div>' +
+              '</div>' +
+              '<div style="margin-bottom:8px;">' +
+                '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;"><span style="font-size:12px;color:#16a34a;font-weight:600;width:60px;">Correct</span><div style="flex:1;background:#f3f4f6;border-radius:8px;height:10px;"><div style="background:#16a34a;height:10px;border-radius:8px;width:' + cp + '%;"></div></div><span style="font-size:12px;color:#374151;font-weight:600;width:40px;">' + (q.correct_count||0) + '/' + total + '</span></div>' +
+                '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:12px;color:#dc2626;font-weight:600;width:60px;">Wrong</span><div style="flex:1;background:#f3f4f6;border-radius:8px;height:10px;"><div style="background:#dc2626;height:10px;border-radius:8px;width:' + wp + '%;"></div></div><span style="font-size:12px;color:#374151;font-weight:600;width:40px;">' + (q.wrong_count||0) + '/' + total + '</span></div>' +
+              '</div>' +
+              '<div style="margin-top:12px;padding:10px 14px;background:#f9fafb;border-radius:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"><p style="font-size:12px;color:#6b7280;margin:0;">Average: <strong style="color:#7c3aed;">' + (Math.round(q.avg_score*100)/100||0) + '/' + q.marks + '</strong> - ' + (cp>=70?'Students performing well.':cp>=40?'Some students struggling.':'Most students got this wrong. Review this topic.') + '</p>' +
+              (q.question_type==='theory' ? '<button onclick="checkSimilarity(' + assessmentId + ', ' + q.question_id + ')" style="background:#fef3c7;color:#92400e;border:none;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;"><i class="fas fa-search mr-1"></i>Check Similarity</button>' : '') +
+              '</div>' +
+            '</div>';
+          }).join(''));
+    }).catch(() => { document.getElementById('analyticsContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Server error.</p>'; });
+  }
+
+  function checkSimilarity(assessmentId, questionId) {
+    const overlay = document.createElement('div');
+    overlay.id = 'similarityOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:white;border-radius:24px;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+      '<div style="background:linear-gradient(135deg,#1a0a35,#7c3aed);padding:20px 24px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;">' +
+        '<h2 style="color:white;font-size:16px;font-weight:800;margin:0;">Answer Similarity Check</h2>' +
+        '<button onclick="document.getElementById(\'similarityOverlay\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;">x</button>' +
+      '</div>' +
+      '<div id="similarityContent" style="padding:24px;"><p style="text-align:center;color:#6b7280;">Checking answers...</p></div>' +
+    '</div>';
+    document.body.appendChild(overlay);
+
+    fetch('/lecturer/assessments/' + assessmentId + '/similarity/' + questionId).then(r => r.json()).then(data => {
+      const content = document.getElementById('similarityContent');
+      if (!data.success) { content.innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to check similarity.</p>'; return; }
+      if (data.pairs.length === 0) {
+        content.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-shield-check" style="font-size:40px;color:#16a34a;margin-bottom:12px;"></i><p style="color:#374151;font-weight:600;">No suspicious similarities found.</p><p style="color:#9ca3af;font-size:13px;margin-top:4px;">Checked ' + data.totalAnswers + ' answer(s). Threshold: 60% word overlap.</p></div>';
+        return;
+      }
+      content.innerHTML = '<p style="color:#6b7280;font-size:13px;margin-bottom:16px;">Found ' + data.pairs.length + ' pair(s) with 60% or higher similarity out of ' + data.totalAnswers + ' answers.</p>' +
+        data.pairs.map(p =>
+          '<div style="border:1.5px solid #fde68a;background:#fffbeb;border-radius:14px;padding:16px;margin-bottom:12px;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+              '<p style="font-size:13px;font-weight:700;color:#92400e;margin:0;">' + p.student1 + ' (' + (p.matric1||'--') + ') vs ' + p.student2 + ' (' + (p.matric2||'--') + ')</p>' +
+              '<span style="background:#f59e0b;color:white;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">' + p.similarity + '% match</span>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+              '<div style="background:white;border-radius:8px;padding:8px 10px;font-size:12px;color:#374151;max-height:100px;overflow-y:auto;">' + p.answer1 + '</div>' +
+              '<div style="background:white;border-radius:8px;padding:8px 10px;font-size:12px;color:#374151;max-height:100px;overflow-y:auto;">' + p.answer2 + '</div>' +
+            '</div>' +
+          '</div>'
+        ).join('');
+    }).catch(() => { document.getElementById('similarityContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Server error.</p>'; });
+  }
+
+  // ── PREVIEW ──────────────────────────────────────────
+  // ── PREVIEW ──────────────────────────────────────────
+  function previewAssessment(assessmentId, title) {
+    const overlay = document.createElement('div');
+    overlay.id = 'previewOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:#f9fafb;border-radius:24px;width:100%;max-width:860px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+      '<div style="background:linear-gradient(135deg,#1a0a35,#7c3aed);padding:24px 28px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">' +
+        '<div><span style="background:rgba(255,255,255,0.2);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;">PREVIEW MODE</span><h2 style="color:white;font-size:20px;font-weight:800;margin:8px 0 0;">' + title + '</h2></div>' +
+        '<button onclick="document.getElementById(\'previewOverlay\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;">x</button>' +
+      '</div>' +
+      '<div id="previewContent" style="padding:24px;"><div style="text-align:center;padding:40px;"><div style="width:40px;height:40px;border:3px solid #7c3aed;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px;"></div><p style="color:#6b7280;">Loading preview...</p></div></div>' +
+    '</div>';
+    if (!document.getElementById('spinStyle')) { const s=document.createElement('style');s.id='spinStyle';s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';document.head.appendChild(s); }
+    document.body.appendChild(overlay);
+
+    fetch('/lecturer/assessments/' + assessmentId + '/preview').then(r => r.json()).then(data => {
+      const content = document.getElementById('previewContent');
+      if (!data.success) { content.innerHTML = '<p style="color:#ef4444;text-align:center;">' + (data.message || 'Failed to load preview.') + '</p>'; return; }
+
+      let html = '<div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:20px;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">' +
+          '<div><p style="font-size:18px;font-weight:800;color:#111827;margin:0;">' + data.title + '</p><p style="font-size:12px;color:#6b7280;margin:4px 0 0;">' + data.course_code + ' - ' + data.questions.length + ' Questions</p></div>' +
+          '<div style="display:flex;gap:16px;flex-wrap:wrap;">' +
+            '<div style="text-align:center;"><p style="font-size:11px;color:#6b7280;margin:0;">Duration</p><p style="font-size:16px;font-weight:700;color:#7c3aed;margin:0;">' + (data.duration_minutes || 0) + ' mins</p></div>' +
+            '<div style="text-align:center;"><p style="font-size:11px;color:#6b7280;margin:0;">Total Marks</p><p style="font-size:16px;font-weight:700;color:#7c3aed;margin:0;">' + data.total_marks + '</p></div>' +
+          '</div>' +
+        '</div>';
+
+      if (!data.questions || data.questions.length === 0) {
+        html += '<div style="background:white;border-radius:16px;padding:40px;text-align:center;border:1.5px solid #e5e7eb;"><p style="color:#6b7280;">No questions added yet.</p></div>';
+      } else {
+        data.questions.forEach((q, i) => {
+          html += '<div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px;border:1.5px solid #e5e7eb;">';
+          html += '<div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;"><span style="background:#7c3aed;color:white;width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;">' + (i+1) + '</span><p style="font-size:15px;font-weight:600;color:#111827;margin:0;">' + q.question_text + '</p></div>';
+
+          if (q.question_type === 'mcq' && q.options) {
+            q.options.forEach(opt => {
+              html += '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:12px;margin-bottom:8px;margin-left:48px;"><div style="width:18px;height:18px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;"></div><span style="font-weight:700;color:#7c3aed;width:20px;">' + opt.option_label + '.</span><span style="color:#374151;font-size:14px;">' + opt.option_text + '</span></div>';
+            });
+          }
+          if (q.question_type === 'theory') {
+            html += '<textarea placeholder="Student will type answer here..." style="width:calc(100% - 48px);margin-left:48px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:14px;color:#9ca3af;resize:none;height:100px;font-family:inherit;display:block;" disabled></textarea>';
+          }
+          if (q.question_type === 'programming') {
+            html += '<textarea placeholder="Student writes code here..." style="width:calc(100% - 48px);margin-left:48px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:13px;color:#9ca3af;resize:none;height:120px;font-family:monospace;background:#111827;display:block;" disabled></textarea>';
+          }
+          if (q.answer_key) {
+            html += '<div style="margin-top:12px;margin-left:48px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;"><p style="font-size:11px;color:#16a34a;font-weight:700;margin:0 0 4px;">Answer Key (Visible to Lecturer Only):</p><p style="font-size:12px;color:#374151;margin:0;">' + q.answer_key + '</p></div>';
+          }
+          html += '<p style="font-size:11px;color:#9ca3af;margin:10px 0 0;margin-left:48px;">' + q.marks + ' mark' + (q.marks > 1 ? 's' : '') + ' - ' + q.question_type + '</p>';
+          html += '</div>';
+        });
+      }
+
+      content.innerHTML = html;
+    }).catch((err) => {
+      document.getElementById('previewContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Server error loading preview.</p>';
+    });
+  }
+
+  // ── REVIEW SUBMISSION ─────────────────────────────────
+  function reviewSubmission(submissionId) {
+    const overlay = document.createElement('div');
+    overlay.id = 'reviewOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:#f9fafb;border-radius:24px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+      '<div style="background:linear-gradient(135deg,#1a0a35,#7c3aed);padding:20px 24px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">' +
+        '<h2 style="color:white;font-size:16px;font-weight:800;margin:0;">Review Submission</h2>' +
+        '<button onclick="document.getElementById(\'reviewOverlay\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;">x</button>' +
+      '</div>' +
+      '<div id="reviewContent" style="padding:24px;"><div style="text-align:center;padding:40px;"><div style="width:40px;height:40px;border:3px solid #7c3aed;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px;"></div><p style="color:#6b7280;">Loading submission...</p></div></div>' +
+    '</div>';
+    if (!document.getElementById('spinStyle')) { const s=document.createElement('style');s.id='spinStyle';s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';document.head.appendChild(s); }
+    document.body.appendChild(overlay);
+
+    fetch('/lecturer/submissions/' + submissionId).then(r => r.json()).then(data => {
+      const content = document.getElementById('reviewContent');
+      if (!data.success) { content.innerHTML = '<p style="color:#ef4444;text-align:center;">' + (data.message || 'Failed to load.') + '</p>'; return; }
+      const sub = data.submission;
+
+      let html = '<div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:20px;border:1.5px solid #e5e7eb;">' +
+          '<p style="font-size:16px;font-weight:800;color:#111827;margin:0;">' + sub.student_name + ' (' + (sub.matric_number||'--') + ')</p>' +
+          '<p style="font-size:13px;color:#6b7280;margin:4px 0 0;">' + sub.assessment_title + ' - Total: <strong id="liveTotalScore">' + sub.total_score + '</strong>/' + sub.total_marks + '</p>' +
+        '</div>';
+
+      data.answers.forEach((a, i) => {
+        let referenceHTML = '';
+        if (a.question_type === 'mcq' && a.correct_answer) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Correct answer: <strong>' + a.correct_answer + '</strong></p>';
+        if (a.question_type === 'theory' && a.keywords) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Expected keywords: <strong>' + a.keywords + '</strong></p>';
+        if (a.question_type === 'programming' && a.test_case) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Expected output: <strong>' + a.test_case + '</strong></p>';
+
+        html += '<div style="background:white;border-radius:16px;padding:20px;margin-bottom:14px;border:1.5px solid #e5e7eb;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;">' +
+              '<p style="font-size:14px;font-weight:600;color:#111827;margin:0;flex:1;">' + (i+1) + '. ' + a.question_text + '</p>' +
+              '<span style="background:' + (a.is_correct ? '#dcfce7' : '#fee2e2') + ';color:' + (a.is_correct ? '#16a34a' : '#dc2626') + ';padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;">' + (a.is_correct ? 'Correct' : 'Incorrect') + '</span>' +
+            '</div>' +
+            '<div style="background:#f9fafb;border-radius:10px;padding:10px 14px;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;margin:0 0 4px;font-weight:600;">Student Answer:</p><p style="font-size:13px;color:#374151;margin:0;white-space:pre-wrap;">' + (a.answer_text || '(no answer)') + '</p></div>' +
+            referenceHTML +
+            '<div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
+              '<label style="font-size:12px;color:#374151;font-weight:600;">Score:</label>' +
+              '<input type="number" id="score_' + a.answer_id + '" value="' + a.score_awarded + '" min="0" max="' + a.marks + '" step="0.5" data-marks="' + a.marks + '" oninput="updateLiveTotal()" style="width:70px;padding:6px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;">' +
+              '<span style="font-size:12px;color:#9ca3af;">/ ' + a.marks + ' marks</span>' +
+            '</div>' +
+            '<div style="margin-top:8px;"><label style="font-size:11px;color:#6b7280;font-weight:600;">Feedback (optional):</label><textarea id="feedback_' + a.answer_id + '" rows="2" placeholder="Add a comment for the student..." style="width:100%;margin-top:4px;padding:8px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:12px;resize:vertical;">' + (a.lecturer_feedback||'') + '</textarea></div>' +
+          '</div>';
+      });
+
+      html += '<div style="background:white;border-radius:16px;padding:20px;border:1.5px solid #e5e7eb;margin-bottom:14px;">' +
+          '<label style="font-size:13px;color:#374151;font-weight:700;">Overall Comment for Student:</label>' +
+          '<textarea id="overallComment" rows="3" placeholder="e.g. Good effort overall, but review chapter 4." style="width:100%;margin-top:8px;padding:10px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:13px;resize:vertical;">' + (sub.lecturer_comment||'') + '</textarea>' +
+        '</div>' +
+        '<button onclick="saveReview(' + sub.submission_id + ')" style="background:#7c3aed;color:white;border:none;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;"><i class="fas fa-save mr-2"></i>Save Review</button>';
+
+      content.innerHTML = html;
+      window.reviewAnswerIds = data.answers.map(a => a.answer_id);
+    }).catch(() => { document.getElementById('reviewContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Server error.</p>'; });
+  }
+
+  function updateLiveTotal() {
+    let total = 0;
+    (window.reviewAnswerIds || []).forEach(id => {
+      const input = document.getElementById('score_' + id);
+      if (input) {
+        let val = parseFloat(input.value) || 0;
+        const max = parseFloat(input.dataset.marks);
+        if (val > max) { val = max; input.value = max; }
+        if (val < 0) { val = 0; input.value = 0; }
+        total += val;
+      }
+    });
+    const liveTotal = document.getElementById('liveTotalScore');
+    if (liveTotal) liveTotal.textContent = total;
+  }
+
+  function saveReview(submissionId) {
+    const scores = (window.reviewAnswerIds || []).map(id => ({
+      answer_id: id,
+      score_awarded: parseFloat(document.getElementById('score_' + id).value) || 0,
+      lecturer_feedback: document.getElementById('feedback_' + id).value.trim()
+    }));
+    const comment = document.getElementById('overallComment').value.trim();
+
+    fetch('/lecturer/submissions/' + submissionId + '/review', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ scores, comment })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { alert('Review saved successfully. New total score: ' + data.newTotal); document.getElementById('reviewOverlay').remove(); loadSubmissions(); }
+      else alert(data.message || 'Failed to save review.');
+    }).catch(() => alert('Server error.'));
+  }
+
+  // ── SUBMISSIONS ──────────────────────────────────────
   function loadSubmissions() {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Student Submissions</h2></div>
-        <div class="p-6">
-          <table class="w-full text-sm">
-            <thead><tr class="text-left text-gray-500 border-b">
-              <th class="pb-3 font-semibold">Student</th>
-              <th class="pb-3 font-semibold">Assessment</th>
-              <th class="pb-3 font-semibold">Score</th>
-              <th class="pb-3 font-semibold">Status</th>
-              <th class="pb-3 font-semibold">Submitted</th>
-            </tr></thead>
-            <tbody id="submissionsList">
-              <tr><td colspan="5" class="py-4 text-gray-400 text-sm">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>`;
-
+    document.getElementById('mainContent').innerHTML =
+      '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+        '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Student Submissions</h2></div>' +
+        '<div class="p-6" id="submissionsList"><p class="text-gray-400 text-sm">Loading...</p></div>' +
+      '</div>';
     fetch('/lecturer/submissions').then(r => r.json()).then(data => {
-      const tbody = document.getElementById('submissionsList');
-      if (!data.submissions || data.submissions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-gray-400 text-sm">No submissions yet.</td></tr>'; return;
-      }
-      tbody.innerHTML = data.submissions.map(s => `
-        <tr class="hover:bg-gray-50">
-          <td class="py-3 font-medium text-gray-800">${s.student_name}</td>
-          <td class="py-3 text-gray-500">${s.assessment_title}</td>
-          <td class="py-3 font-bold text-purple-700">${s.total_score}/${s.total_marks}</td>
-          <td class="py-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${s.status === 'graded' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${s.status}</span></td>
-          <td class="py-3 text-gray-400">${new Date(s.submitted_at).toLocaleDateString()}</td>
-        </tr>`).join('');
+      const div = document.getElementById('submissionsList');
+      if (!data.submissions || data.submissions.length === 0) { div.innerHTML = '<div class="text-center py-12"><i class="fas fa-inbox text-4xl text-gray-200 mb-4"></i><p class="text-gray-400">No submissions yet.</p></div>'; return; }
+      div.innerHTML = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-gray-500 border-b bg-gray-50"><th class="pb-3 pt-2 px-2 font-semibold">Student</th><th class="pb-3 pt-2 px-2 font-semibold">Assessment</th><th class="pb-3 pt-2 px-2 font-semibold">Score</th><th class="pb-3 pt-2 px-2 font-semibold">Status</th><th class="pb-3 pt-2 px-2 font-semibold">Date</th><th class="pb-3 pt-2 px-2 font-semibold">Action</th></tr></thead><tbody class="divide-y divide-gray-50">' +
+        data.submissions.map(s =>
+          '<tr class="hover:bg-gray-50"><td class="py-3 px-2 font-medium text-gray-800">' + s.student_name + '</td><td class="py-3 px-2 text-gray-600">' + s.assessment_title + '</td><td class="py-3 px-2 font-bold text-purple-700">' + s.total_score + '/' + s.total_marks + '</td><td class="py-3 px-2"><span class="px-2 py-1 rounded-full text-xs font-semibold ' + (s.status==='graded'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700') + '">' + s.status + '</span>' + (s.reviewed?' <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 ml-1">Reviewed</span>':'') + '</td><td class="py-3 px-2 text-gray-400">' + new Date(s.submitted_at).toLocaleDateString('en-GB') + '</td><td class="py-3 px-2"><button onclick="reviewSubmission(' + s.submission_id + ')" class="text-purple-600 hover:text-purple-800 text-xs font-semibold px-3 py-1.5 bg-purple-50 rounded-lg"><i class="fas fa-edit mr-1"></i>Review</button></td></tr>'
+        ).join('') + '</tbody></table></div>';
     }).catch(() => {});
   }
 
-  function loadLecturerResults() {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Assessment Results</h2></div>
-        <div class="p-6" id="lecturerResultsTable">
-          <div class="text-gray-400 text-sm">Loading...</div>
-        </div>
-      </div>`;
+function reviewSubmission(submissionId) {
+    const overlay = document.createElement('div');
+    overlay.id = 'reviewOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:#f9fafb;border-radius:24px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+      '<div style="background:linear-gradient(135deg,#1a0a35,#7c3aed);padding:20px 24px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">' +
+        '<h2 style="color:white;font-size:16px;font-weight:800;margin:0;">Review Submission</h2>' +
+        '<button onclick="document.getElementById(\'reviewOverlay\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;">x</button>' +
+      '</div>' +
+      '<div id="reviewContent" style="padding:24px;"><p style="text-align:center;color:#6b7280;">Loading...</p></div>' +
+    '</div>';
+    document.body.appendChild(overlay);
 
+    fetch('/lecturer/submissions/' + submissionId).then(r => r.json()).then(data => {
+      if (!data.success) { document.getElementById('reviewContent').innerHTML = '<p style="color:#ef4444;text-align:center;">' + (data.message||'Failed to load.') + '</p>'; return; }
+      const sub = data.submission;
+
+      document.getElementById('reviewContent').innerHTML =
+        '<div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:20px;border:1.5px solid #e5e7eb;">' +
+          '<p style="font-size:16px;font-weight:800;color:#111827;margin:0;">' + sub.student_name + ' (' + (sub.matric_number||'--') + ')</p>' +
+          '<p style="font-size:13px;color:#6b7280;margin:4px 0 0;">' + sub.assessment_title + ' - Total: <strong id="liveTotalScore">' + sub.total_score + '</strong>/' + sub.total_marks + '</p>' +
+        '</div>' +
+        data.answers.map((a, i) => {
+          let referenceHTML = '';
+          if (a.question_type === 'mcq' && a.correct_answer) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Correct answer: <strong>' + a.correct_answer + '</strong></p>';
+          if (a.question_type === 'theory' && a.keywords) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Expected keywords: <strong>' + a.keywords + '</strong></p>';
+          if (a.question_type === 'programming' && a.test_case) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Expected output: <strong>' + a.test_case + '</strong></p>';
+
+          return '<div style="background:white;border-radius:16px;padding:20px;margin-bottom:14px;border:1.5px solid #e5e7eb;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:10px;">' +
+              '<p style="font-size:14px;font-weight:600;color:#111827;margin:0;flex:1;">' + (i+1) + '. ' + a.question_text + '</p>' +
+              '<span style="background:' + (a.is_correct ? '#dcfce7' : '#fee2e2') + ';color:' + (a.is_correct ? '#16a34a' : '#dc2626') + ';padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;">' + (a.is_correct ? 'Correct' : 'Incorrect') + '</span>' +
+            '</div>' +
+            '<div style="background:#f9fafb;border-radius:10px;padding:10px 14px;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;margin:0 0 4px;font-weight:600;">Student Answer:</p><p style="font-size:13px;color:#374151;margin:0;white-space:pre-wrap;">' + (a.answer_text || '(no answer)') + '</p></div>' +
+            referenceHTML +
+            '<div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
+              '<label style="font-size:12px;color:#374151;font-weight:600;">Score:</label>' +
+              '<input type="number" id="score_' + a.answer_id + '" value="' + a.score_awarded + '" min="0" max="' + a.marks + '" step="0.5" data-marks="' + a.marks + '" oninput="updateLiveTotal()" style="width:70px;padding:6px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;">' +
+              '<span style="font-size:12px;color:#9ca3af;">/ ' + a.marks + ' marks</span>' +
+            '</div>' +
+            '<div style="margin-top:8px;"><label style="font-size:11px;color:#6b7280;font-weight:600;">Feedback (optional):</label><textarea id="feedback_' + a.answer_id + '" rows="2" placeholder="Add a comment for the student..." style="width:100%;margin-top:4px;padding:8px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:12px;resize:vertical;">' + (a.lecturer_feedback||'') + '</textarea></div>' +
+          '</div>';
+        }).join('') +
+        '<div style="background:white;border-radius:16px;padding:20px;border:1.5px solid #e5e7eb;margin-bottom:14px;">' +
+          '<label style="font-size:13px;color:#374151;font-weight:700;">Overall Comment for Student:</label>' +
+          '<textarea id="overallComment" rows="3" placeholder="e.g. Good effort overall, but review chapter 4." style="width:100%;margin-top:8px;padding:10px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:13px;resize:vertical;">' + (sub.lecturer_comment||'') + '</textarea>' +
+        '</div>' +
+        '<button onclick="saveReview(' + sub.submission_id + ')" style="background:#7c3aed;color:white;border:none;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;"><i class="fas fa-save mr-2"></i>Save Review</button>';
+
+      window.reviewAnswerIds = data.answers.map(a => a.answer_id);
+    }).catch(() => { document.getElementById('reviewContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Server error.</p>'; });
+  }
+
+  function updateLiveTotal() {
+    let total = 0;
+    (window.reviewAnswerIds || []).forEach(id => {
+      const input = document.getElementById('score_' + id);
+      if (input) {
+        let val = parseFloat(input.value) || 0;
+        const max = parseFloat(input.dataset.marks);
+        if (val > max) { val = max; input.value = max; }
+        if (val < 0) { val = 0; input.value = 0; }
+        total += val;
+      }
+    });
+    const liveTotal = document.getElementById('liveTotalScore');
+    if (liveTotal) liveTotal.textContent = total;
+  }
+
+  function reviewSubmission(submissionId) {
+    const overlay = document.createElement('div');
+    overlay.id = 'reviewOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto;';
+    overlay.innerHTML = '<div style="background:#f9fafb;border-radius:24px;width:100%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">' +
+      '<div style="background:linear-gradient(135deg,#1a0a35,#7c3aed);padding:20px 24px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">' +
+        '<h2 style="color:white;font-size:16px;font-weight:800;margin:0;">Review Submission</h2>' +
+        '<button onclick="document.getElementById(\'reviewOverlay\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;">x</button>' +
+      '</div>' +
+      '<div id="reviewContent" style="padding:24px;"><p style="text-align:center;color:#6b7280;">Loading...</p></div>' +
+    '</div>';
+    document.body.appendChild(overlay);
+
+    fetch('/lecturer/submissions/' + submissionId).then(r => r.json()).then(data => {
+      if (!data.success) { document.getElementById('reviewContent').innerHTML = '<p style="color:#ef4444;text-align:center;">' + (data.message||'Failed to load.') + '</p>'; return; }
+      const sub = data.submission;
+
+      document.getElementById('reviewContent').innerHTML =
+        '<div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:20px;border:1.5px solid #e5e7eb;">' +
+          '<p style="font-size:16px;font-weight:800;color:#111827;margin:0;">' + sub.student_name + ' (' + (sub.matric_number||'--') + ')</p>' +
+          '<p style="font-size:13px;color:#6b7280;margin:4px 0 0;">' + sub.assessment_title + ' - Total: <strong id="liveTotalScore">' + sub.total_score + '</strong>/' + sub.total_marks + '</p>' +
+        '</div>' +
+        data.answers.map((a, i) => {
+          let referenceHTML = '';
+          if (a.question_type === 'mcq' && a.correct_answer) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Correct answer: <strong>' + a.correct_answer + '</strong></p>';
+          if (a.question_type === 'theory' && a.keywords) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Expected keywords: <strong>' + a.keywords + '</strong></p>';
+          if (a.question_type === 'programming' && a.test_case) referenceHTML = '<p style="font-size:11px;color:#16a34a;margin:4px 0 0;">Expected output: <strong>' + a.test_case + '</strong></p>';
+
+          return '<div style="background:white;border-radius:16px;padding:20px;margin-bottom:14px;border:1.5px solid #e5e7eb;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:10px;">' +
+              '<p style="font-size:14px;font-weight:600;color:#111827;margin:0;flex:1;">' + (i+1) + '. ' + a.question_text + '</p>' +
+              '<span style="background:' + (a.is_correct ? '#dcfce7' : '#fee2e2') + ';color:' + (a.is_correct ? '#16a34a' : '#dc2626') + ';padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;">' + (a.is_correct ? 'Correct' : 'Incorrect') + '</span>' +
+            '</div>' +
+            '<div style="background:#f9fafb;border-radius:10px;padding:10px 14px;margin-bottom:8px;"><p style="font-size:11px;color:#6b7280;margin:0 0 4px;font-weight:600;">Student Answer:</p><p style="font-size:13px;color:#374151;margin:0;white-space:pre-wrap;">' + (a.answer_text || '(no answer)') + '</p></div>' +
+            referenceHTML +
+            '<div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;">' +
+              '<label style="font-size:12px;color:#374151;font-weight:600;">Score:</label>' +
+              '<input type="number" id="score_' + a.answer_id + '" value="' + a.score_awarded + '" min="0" max="' + a.marks + '" step="0.5" data-marks="' + a.marks + '" oninput="updateLiveTotal()" style="width:70px;padding:6px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:13px;">' +
+              '<span style="font-size:12px;color:#9ca3af;">/ ' + a.marks + ' marks</span>' +
+            '</div>' +
+            '<div style="margin-top:8px;"><label style="font-size:11px;color:#6b7280;font-weight:600;">Feedback (optional):</label><textarea id="feedback_' + a.answer_id + '" rows="2" placeholder="Add a comment for the student..." style="width:100%;margin-top:4px;padding:8px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:12px;resize:vertical;">' + (a.lecturer_feedback||'') + '</textarea></div>' +
+          '</div>';
+        }).join('') +
+        '<div style="background:white;border-radius:16px;padding:20px;border:1.5px solid #e5e7eb;margin-bottom:14px;">' +
+          '<label style="font-size:13px;color:#374151;font-weight:700;">Overall Comment for Student:</label>' +
+          '<textarea id="overallComment" rows="3" placeholder="e.g. Good effort overall, but review chapter 4." style="width:100%;margin-top:8px;padding:10px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:13px;resize:vertical;">' + (sub.lecturer_comment||'') + '</textarea>' +
+        '</div>' +
+        '<button onclick="saveReview(' + sub.submission_id + ')" style="background:#7c3aed;color:white;border:none;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;"><i class="fas fa-save mr-2"></i>Save Review</button>';
+
+      window.reviewAnswerIds = data.answers.map(a => a.answer_id);
+    }).catch(() => { document.getElementById('reviewContent').innerHTML = '<p style="color:#ef4444;text-align:center;">Server error.</p>'; });
+  }
+
+  function updateLiveTotal() {
+    let total = 0;
+    (window.reviewAnswerIds || []).forEach(id => {
+      const input = document.getElementById('score_' + id);
+      if (input) {
+        let val = parseFloat(input.value) || 0;
+        const max = parseFloat(input.dataset.marks);
+        if (val > max) { val = max; input.value = max; }
+        if (val < 0) { val = 0; input.value = 0; }
+        total += val;
+      }
+    });
+    const liveTotal = document.getElementById('liveTotalScore');
+    if (liveTotal) liveTotal.textContent = total;
+  }
+
+  function saveReview(submissionId) {
+    const scores = (window.reviewAnswerIds || []).map(id => ({
+      answer_id: id,
+      score_awarded: parseFloat(document.getElementById('score_' + id).value) || 0,
+      lecturer_feedback: document.getElementById('feedback_' + id).value.trim()
+    }));
+    const comment = document.getElementById('overallComment').value.trim();
+
+    fetch('/lecturer/submissions/' + submissionId + '/review', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ scores, comment })
+    }).then(r => r.json()).then(data => {
+      if (data.success) { alert('Review saved successfully. New total score: ' + data.newTotal); document.getElementById('reviewOverlay').remove(); loadSubmissions(); }
+      else alert(data.message || 'Failed to save review.');
+    }).catch(() => alert('Server error.'));
+  }
+
+  // ── RESULTS ──────────────────────────────────────────
+  function loadResults() {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+        '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Assessment Results</h2></div>' +
+        '<div class="p-6" id="resultsList"><p class="text-gray-400 text-sm">Loading...</p></div>' +
+      '</div>';
     fetch('/lecturer/results').then(r => r.json()).then(data => {
-      const div = document.getElementById('lecturerResultsTable');
-      if (!data.results || data.results.length === 0) {
-        div.innerHTML = '<p class="text-gray-400 text-sm">No results yet.</p>'; return;
-      }
-      div.innerHTML = `
-        <table class="w-full text-sm">
-          <thead><tr class="text-left text-gray-500 border-b">
-            <th class="pb-3 font-semibold">Student</th>
-            <th class="pb-3 font-semibold">Assessment</th>
-            <th class="pb-3 font-semibold">Course</th>
-            <th class="pb-3 font-semibold">Score</th>
-            <th class="pb-3 font-semibold">Grade</th>
-            <th class="pb-3 font-semibold">Date</th>
-          </tr></thead>
-          <tbody class="divide-y divide-gray-50">
-            ${data.results.map(r => {
-              const pct = Math.round((r.total_score / r.total_marks) * 100);
-              const grade = pct >= 70 ? 'A' : pct >= 60 ? 'B' : pct >= 50 ? 'C' : pct >= 45 ? 'D' : 'F';
-              const gradeColor = pct >= 70 ? 'bg-green-100 text-green-700' : pct >= 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-600';
-              return `
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 font-medium text-gray-800">${r.student_name}</td>
-                <td class="py-3 text-gray-500">${r.assessment_title}</td>
-                <td class="py-3 text-gray-500">${r.course_code}</td>
-                <td class="py-3 font-bold text-purple-700">${r.total_score}/${r.total_marks} (${pct}%)</td>
-                <td class="py-3"><span class="px-3 py-1 rounded-full text-xs font-bold ${gradeColor}">${grade}</span></td>
-                <td class="py-3 text-gray-400">${new Date(r.submitted_at).toLocaleDateString()}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>`;
+      const div = document.getElementById('resultsList');
+      if (!data.results || data.results.length === 0) { div.innerHTML = '<div class="text-center py-12"><i class="fas fa-trophy text-4xl text-gray-200 mb-4"></i><p class="text-gray-400">No results yet.</p></div>'; return; }
+      div.innerHTML = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-gray-500 border-b bg-gray-50"><th class="pb-3 pt-2 px-2 font-semibold">Student</th><th class="pb-3 pt-2 px-2 font-semibold">Assessment</th><th class="pb-3 pt-2 px-2 font-semibold">Course</th><th class="pb-3 pt-2 px-2 font-semibold">Score</th><th class="pb-3 pt-2 px-2 font-semibold">%</th><th class="pb-3 pt-2 px-2 font-semibold">Grade</th><th class="pb-3 pt-2 px-2 font-semibold">Date</th></tr></thead><tbody class="divide-y divide-gray-50">' +
+        data.results.map(r => {
+          const pct = Math.round((r.total_score/r.total_marks)*100);
+          const grade = pct>=70?'A':pct>=60?'B':pct>=50?'C':pct>=45?'D':'F';
+          const gc = pct>=70?'bg-green-100 text-green-700':pct>=50?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-600';
+          return '<tr class="hover:bg-gray-50"><td class="py-3 px-2 font-medium text-gray-800">' + r.student_name + '</td><td class="py-3 px-2 text-gray-600">' + r.assessment_title + '</td><td class="py-3 px-2 text-gray-500">' + r.course_code + '</td><td class="py-3 px-2 font-bold text-gray-800">' + r.total_score + '/' + r.total_marks + '</td><td class="py-3 px-2 font-bold ' + (pct>=70?'text-green-600':pct>=50?'text-yellow-600':'text-red-500') + '">' + pct + '%</td><td class="py-3 px-2"><span class="px-2 py-1 rounded-full text-xs font-bold ' + gc + '">' + grade + '</span></td><td class="py-3 px-2 text-gray-400">' + new Date(r.submitted_at).toLocaleDateString('en-GB') + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
     }).catch(() => {});
   }
 
-let allStudents = [];
-
+  // ── MY STUDENTS ──────────────────────────────────────
   function loadMyStudents() {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Students Offering My Courses</h2></div>
-
-        <!-- Search Bar -->
-        <div class="p-4 border-b bg-gray-50 flex items-center gap-4 flex-wrap">
-          <div class="relative flex-1 min-w-48">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-            <input type="text" id="studentSearch" placeholder="Search by name or matric number..."
-              oninput="filterStudents()"
-              class="w-full pl-9 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-          </div>
-          <button onclick="clearStudentSearch()" class="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 rounded-xl text-sm font-medium transition-all">
-            <i class="fas fa-times mr-1"></i> Clear
-          </button>
-          <span id="studentCount" class="text-sm text-gray-500"></span>
-        </div>
-
-        <div id="myStudentsTable" class="p-6">
-          <div class="text-gray-400 text-sm">Loading...</div>
-        </div>
-      </div>`;
-
+    document.getElementById('mainContent').innerHTML =
+      '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+        '<div class="p-6 border-b"><h2 class="text-lg font-bold text-gray-900">Students Offering My Courses</h2></div>' +
+        '<div class="p-4 border-b bg-gray-50 flex items-center gap-4 flex-wrap">' +
+          '<div class="relative flex-1 min-w-48"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i><input type="text" id="studentSearch" placeholder="Search by name or matric number..." oninput="filterStudents()" class="w-full pl-9 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/></div>' +
+          '<span id="studentCount" class="text-sm text-gray-500"></span>' +
+        '</div>' +
+        '<div id="myStudentsTable" class="p-6"><p class="text-gray-400 text-sm">Loading...</p></div>' +
+      '</div>';
     fetch('/lecturer/students').then(r => r.json()).then(data => {
       allStudents = data.students || [];
       renderStudentsTable(allStudents);
@@ -747,239 +1042,36 @@ let allStudents = [];
 
   function filterStudents() {
     const search = document.getElementById('studentSearch').value.toLowerCase();
-    const filtered = allStudents.filter(s =>
-      s.full_name.toLowerCase().includes(search) ||
-      (s.matric_number && s.matric_number.toLowerCase().includes(search)) ||
-      s.course_code.toLowerCase().includes(search)
-    );
-    renderStudentsTable(filtered);
-  }
-
-  function clearStudentSearch() {
-    document.getElementById('studentSearch').value = '';
-    renderStudentsTable(allStudents);
+    renderStudentsTable(allStudents.filter(s => s.full_name.toLowerCase().includes(search) || (s.matric_number && s.matric_number.toLowerCase().includes(search)) || s.course_code.toLowerCase().includes(search)));
   }
 
   function renderStudentsTable(students) {
     const div = document.getElementById('myStudentsTable');
     const count = document.getElementById('studentCount');
-    if (count) count.textContent = `${students.length} student${students.length !== 1 ? 's' : ''} found`;
-
-    if (!students || students.length === 0) {
-      div.innerHTML = '<p class="text-gray-400 text-sm">No students found.</p>'; return;
-    }
-    div.innerHTML = `
-      <table class="w-full text-sm">
-        <thead><tr class="text-left text-gray-500 border-b">
-          <th class="pb-3 font-semibold">Student Name</th>
-          <th class="pb-3 font-semibold">Matric Number</th>
-          <th class="pb-3 font-semibold">Course</th>
-          <th class="pb-3 font-semibold">Email</th>
-          <th class="pb-3 font-semibold">Enrolled On</th>
-        </tr></thead>
-        <tbody class="divide-y divide-gray-50">
-          ${students.map(s => `
-          <tr class="hover:bg-gray-50">
-            <td class="py-3">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center font-bold text-sm">${s.full_name.charAt(0)}</div>
-                <span class="font-medium text-gray-800">${s.full_name}</span>
-              </div>
-            </td>
-            <td class="py-3 text-gray-500">${s.matric_number || '—'}</td>
-            <td class="py-3"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">${s.course_code}</span></td>
-            <td class="py-3 text-gray-400">${s.email}</td>
-            <td class="py-3 text-gray-400">${new Date(s.enrolled_at).toLocaleDateString()}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`;
+    if (count) count.textContent = students.length + ' student' + (students.length!==1?'s':'') + ' found';
+    if (!students || students.length === 0) { div.innerHTML = '<p class="text-gray-400 text-sm">No students found.</p>'; return; }
+    div.innerHTML = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-left text-gray-500 border-b bg-gray-50"><th class="pb-3 pt-2 px-2 font-semibold">Student</th><th class="pb-3 pt-2 px-2 font-semibold">Matric No.</th><th class="pb-3 pt-2 px-2 font-semibold">Course</th><th class="pb-3 pt-2 px-2 font-semibold">Email</th><th class="pb-3 pt-2 px-2 font-semibold">Enrolled</th></tr></thead><tbody class="divide-y divide-gray-50">' +
+      students.map(s =>
+        '<tr class="hover:bg-gray-50"><td class="py-3 px-2"><div class="flex items-center gap-3"><div class="w-8 h-8 bg-purple-100 text-purple-700 rounded-lg flex items-center justify-center font-bold text-sm">' + s.full_name.charAt(0) + '</div><span class="font-medium text-gray-800">' + s.full_name + '</span></div></td><td class="py-3 px-2 text-gray-500">' + (s.matric_number||'--') + '</td><td class="py-3 px-2"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">' + s.course_code + '</span></td><td class="py-3 px-2 text-gray-400">' + s.email + '</td><td class="py-3 px-2 text-gray-400">' + new Date(s.enrolled_at).toLocaleDateString('en-GB') + '</td></tr>'
+      ).join('') + '</tbody></table></div>';
   }
 
-function viewAnalytics(assessmentId, title) {
-    // Show in a modal overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'analyticsOverlay';
-    overlay.style.cssText = `
-      position: fixed; inset: 0; z-index: 9999;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;`;
-
-    overlay.innerHTML = `
-      <div style="background:white; border-radius:24px; width:100%; max-width:800px;
-        max-height:85vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-
-        <div style="background:linear-gradient(135deg,#581c87,#7c3aed); padding:24px 28px; border-radius:24px 24px 0 0; display:flex; align-items:center; justify-content:space-between;">
-          <div>
-            <h2 style="color:white; font-size:18px; font-weight:800; margin:0;">${title}</h2>
-            <p style="color:#e9d5ff; font-size:12px; margin:4px 0 0;">Per-Question Analytics</p>
-          </div>
-          <button onclick="document.getElementById('analyticsOverlay').remove()"
-            style="background:rgba(255,255,255,0.2); border:none; color:white; width:36px; height:36px;
-            border-radius:50%; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
-            ×
-          </button>
-        </div>
-
-        <div id="analyticsContent" style="padding:24px;">
-          <div style="text-align:center; padding:40px;">
-            <div style="width:40px; height:40px; border:3px solid #7c3aed; border-top-color:transparent;
-              border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 16px;"></div>
-            <p style="color:#6b7280;">Loading analytics...</p>
-          </div>
-        </div>
-      </div>`;
-
-    document.body.appendChild(overlay);
-
-    fetch(`/lecturer/assessments/${assessmentId}/analytics`)
-      .then(r => r.json()).then(data => {
-        if (!data.success) {
-          document.getElementById('analyticsContent').innerHTML =
-            '<p style="color:#ef4444; text-align:center;">Failed to load analytics.</p>';
-          return;
-        }
-
-        const totalSubmissions = data.assessment.total_submissions || 0;
-
-        document.getElementById('analyticsContent').innerHTML = `
-          <!-- Summary -->
-          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">
-            <div style="background:#f5f3ff; border-radius:16px; padding:20px; text-align:center;">
-              <p style="font-size:28px; font-weight:800; color:#7c3aed; margin:0;">${totalSubmissions}</p>
-              <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Total Submissions</p>
-            </div>
-            <div style="background:#f0fdf4; border-radius:16px; padding:20px; text-align:center;">
-              <p style="font-size:28px; font-weight:800; color:#16a34a; margin:0;">${data.questions.length}</p>
-              <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Total Questions</p>
-            </div>
-            <div style="background:#eff6ff; border-radius:16px; padding:20px; text-align:center;">
-              <p style="font-size:28px; font-weight:800; color:#2563eb; margin:0;">${data.assessment.total_marks}</p>
-              <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">Total Marks</p>
-            </div>
-          </div>
-
-          <!-- Per Question Breakdown -->
-          <h3 style="font-size:16px; font-weight:700; color:#111827; margin-bottom:16px;">
-            Question-by-Question Breakdown
-          </h3>
-
-          ${data.questions.length === 0 ?
-            '<p style="color:#9ca3af; text-align:center; padding:20px;">No submissions yet for this assessment.</p>' :
-            data.questions.map((q, i) => {
-              const correctPct = totalSubmissions > 0 ? Math.round((q.correct_count / totalSubmissions) * 100) : 0;
-              const wrongPct = totalSubmissions > 0 ? Math.round((q.wrong_count / totalSubmissions) * 100) : 0;
-              const difficulty = correctPct >= 70 ? 'Easy' : correctPct >= 40 ? 'Medium' : 'Hard';
-              const diffColor = correctPct >= 70 ? '#16a34a' : correctPct >= 40 ? '#d97706' : '#dc2626';
-              const diffBg = correctPct >= 70 ? '#f0fdf4' : correctPct >= 40 ? '#fffbeb' : '#fef2f2';
-
-              return `
-              <div style="border:1.5px solid #e5e7eb; border-radius:16px; padding:20px; margin-bottom:16px;">
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px;">
-                  <div style="flex:1;">
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                      <span style="background:#7c3aed; color:white; width:26px; height:26px; border-radius:8px;
-                        display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">
-                        ${i + 1}
-                      </span>
-                      <p style="font-size:14px; font-weight:600; color:#111827; margin:0;">${q.question_text}</p>
-                    </div>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                      <span style="background:#f3f4f6; color:#6b7280; padding:3px 10px; border-radius:20px; font-size:11px;">${q.question_type}</span>
-                      <span style="background:#f3f4f6; color:#6b7280; padding:3px 10px; border-radius:20px; font-size:11px;">${q.marks} mark${q.marks > 1 ? 's' : ''}</span>
-                      <span style="background:${diffBg}; color:${diffColor}; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;">${difficulty}</span>
-                    </div>
-                  </div>
-                  <div style="text-align:center; flex-shrink:0;">
-                    <p style="font-size:28px; font-weight:800; color:${diffColor}; margin:0;">${correctPct}%</p>
-                    <p style="font-size:11px; color:#6b7280; margin:2px 0 0;">Correct</p>
-                  </div>
-                </div>
-
-                <!-- Progress bars -->
-                <div style="space-y:8px;">
-                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                    <span style="font-size:12px; color:#16a34a; font-weight:600; width:60px;">✅ Correct</span>
-                    <div style="flex:1; background:#f3f4f6; border-radius:8px; height:10px;">
-                      <div style="background:#16a34a; height:10px; border-radius:8px; width:${correctPct}%; transition:width 0.5s;"></div>
-                    </div>
-                    <span style="font-size:12px; color:#374151; font-weight:600; width:40px;">${q.correct_count || 0}/${totalSubmissions}</span>
-                  </div>
-                  <div style="display:flex; align-items:center; gap:12px;">
-                    <span style="font-size:12px; color:#dc2626; font-weight:600; width:60px;">❌ Wrong</span>
-                    <div style="flex:1; background:#f3f4f6; border-radius:8px; height:10px;">
-                      <div style="background:#dc2626; height:10px; border-radius:8px; width:${wrongPct}%; transition:width 0.5s;"></div>
-                    </div>
-                    <span style="font-size:12px; color:#374151; font-weight:600; width:40px;">${q.wrong_count || 0}/${totalSubmissions}</span>
-                  </div>
-                </div>
-
-                <div style="margin-top:12px; padding:10px 14px; background:#f9fafb; border-radius:10px;">
-                  <p style="font-size:12px; color:#6b7280; margin:0;">
-                    Average score: <strong style="color:#7c3aed;">${Math.round(q.avg_score * 100) / 100 || 0}/${q.marks}</strong>
-                    &nbsp;•&nbsp;
-                    ${correctPct >= 70 ? '✅ Students are performing well on this question.' :
-                      correctPct >= 40 ? '⚠️ Some students are struggling with this question.' :
-                      '🔴 Most students got this wrong — consider reviewing this topic.'}
-                  </p>
-                </div>
-              </div>`;
-            }).join('')
-          }
-        `;
-    }).catch(() => {
-      document.getElementById('analyticsContent').innerHTML =
-        '<p style="color:#ef4444; text-align:center;">Server error loading analytics.</p>';
-    });
-  }
-
+  // ── SETTINGS ─────────────────────────────────────────
   function loadSettings() {
-    document.getElementById('mainContent').innerHTML = `
-      <div class="max-w-2xl mx-auto space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-6 border-b flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i class="fas fa-user text-purple-600"></i></div>
-            <div><h2 class="text-lg font-bold text-gray-900">Profile Settings</h2><p class="text-xs text-gray-500">Update your information</p></div>
-          </div>
-          <div class="p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-                <input type="text" id="updateName" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input type="email" id="updateEmail" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-              </div>
-            </div>
-            <div id="profileMsg" class="hidden text-sm font-medium"></div>
-            <button onclick="updateProfile()" class="bg-purple-700 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-purple-800">
-              <i class="fas fa-save mr-2"></i>Save Changes
-            </button>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-6 border-b flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><i class="fas fa-lock text-blue-600"></i></div>
-            <div><h2 class="text-lg font-bold text-gray-900">Change Password</h2><p class="text-xs text-gray-500">Keep your account secure</p></div>
-          </div>
-          <div class="p-6 space-y-4">
-            <input type="password" id="currentPassword" placeholder="Current password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-            <div class="grid grid-cols-2 gap-4">
-              <input type="password" id="newPassword" placeholder="New password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-              <input type="password" id="confirmNewPassword" placeholder="Confirm new password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/>
-            </div>
-            <div id="passwordMsg" class="hidden text-sm font-medium"></div>
-            <button onclick="updatePassword()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-blue-700">
-              <i class="fas fa-key mr-2"></i>Update Password
-            </button>
-          </div>
-        </div>
-      </div>`;
-
+    document.getElementById('mainContent').innerHTML =
+      '<div class="max-w-2xl mx-auto space-y-6">' +
+      '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+        '<div class="p-6 border-b flex items-center gap-3"><div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i class="fas fa-user text-purple-600"></i></div><div><h2 class="text-lg font-bold text-gray-900">Profile Settings</h2><p class="text-xs text-gray-500">Update your information</p></div></div>' +
+        '<div class="p-6 space-y-4"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label><input type="text" id="updateName" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/></div><div><label class="block text-sm font-semibold text-gray-700 mb-2">Email</label><input type="email" id="updateEmail" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/></div></div><div id="profileMsg" class="hidden text-sm font-medium"></div><button onclick="updateProfile()" class="bg-purple-700 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-purple-800"><i class="fas fa-save mr-2"></i>Save Changes</button></div>' +
+      '</div>' +
+      '<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">' +
+        '<div class="p-6 border-b flex items-center gap-3"><div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><i class="fas fa-lock text-blue-600"></i></div><div><h2 class="text-lg font-bold text-gray-900">Change Password</h2><p class="text-xs text-gray-500">Keep your account secure</p></div></div>' +
+        '<div class="p-6 space-y-4"><input type="password" id="currentPassword" placeholder="Current password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="password" id="newPassword" placeholder="New password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/><input type="password" id="confirmNewPassword" placeholder="Confirm new password" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:border-purple-500 outline-none"/></div><div id="passwordMsg" class="hidden text-sm font-medium"></div><button onclick="updatePassword()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-blue-700"><i class="fas fa-key mr-2"></i>Update Password</button></div>' +
+      '</div>' +
+      '</div>';
     fetch('/auth/me').then(r => r.json()).then(data => {
-      document.getElementById('updateName').value = data.fullName || '';
-      document.getElementById('updateEmail').value = data.email || '';
+      if (document.getElementById('updateName')) document.getElementById('updateName').value = data.fullName||'';
+      if (document.getElementById('updateEmail')) document.getElementById('updateEmail').value = data.email||'';
     });
   }
 
@@ -987,103 +1079,31 @@ function viewAnalytics(assessmentId, title) {
     const name = document.getElementById('updateName').value;
     const email = document.getElementById('updateEmail').value;
     const msg = document.getElementById('profileMsg');
-    if (!name || !email) {
-      msg.textContent = 'Name and email are required.';
-      msg.className = 'text-sm font-medium text-red-600';
-      msg.classList.remove('hidden'); return;
-    }
-    fetch('/lecturer/settings/profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fullName: name, email })
-    }).then(r => r.json()).then(data => {
-      if (data.success) {
-        msg.textContent = '✅ Profile updated!';
-        msg.className = 'text-sm font-medium text-green-600';
-        msg.classList.remove('hidden');
-        document.getElementById('lecturerName').textContent = name;
-        document.getElementById('headerName').textContent = name;
-      } else {
-        msg.textContent = data.message || 'Failed.';
-        msg.className = 'text-sm font-medium text-red-600';
-        msg.classList.remove('hidden');
-      }
-    });
+    if (!name||!email) { msg.textContent='Name and email are required.';msg.className='text-sm font-medium text-red-600';msg.classList.remove('hidden');return; }
+    fetch('/lecturer/settings/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fullName:name,email})})
+      .then(r=>r.json()).then(data=>{
+        if(data.success){msg.textContent='Profile updated successfully.';msg.className='text-sm font-medium text-green-600';msg.classList.remove('hidden');document.getElementById('lecturerName').textContent=name;document.getElementById('headerName').textContent=name;}
+        else{msg.textContent=data.message||'Failed.';msg.className='text-sm font-medium text-red-600';msg.classList.remove('hidden');}
+      });
   }
 
   function updatePassword() {
-    const current = document.getElementById('currentPassword').value;
-    const newPass = document.getElementById('newPassword').value;
-    const confirm = document.getElementById('confirmNewPassword').value;
-    const msg = document.getElementById('passwordMsg');
-    if (!current || !newPass || !confirm) {
-      msg.textContent = 'All fields are required.';
-      msg.className = 'text-sm font-medium text-red-600';
-      msg.classList.remove('hidden'); return;
-    }
-    if (newPass !== confirm) {
-      msg.textContent = 'Passwords do not match.';
-      msg.className = 'text-sm font-medium text-red-600';
-      msg.classList.remove('hidden'); return;
-    }
-    fetch('/lecturer/settings/password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPassword: current, newPassword: newPass })
-    }).then(r => r.json()).then(data => {
-      if (data.success) {
-        msg.textContent = '✅ Password updated!';
-        msg.className = 'text-sm font-medium text-green-600';
-        msg.classList.remove('hidden');
-      } else {
-        msg.textContent = data.message || 'Failed.';
-        msg.className = 'text-sm font-medium text-red-600';
-        msg.classList.remove('hidden');
-      }
-    });
+    const current=document.getElementById('currentPassword').value;
+    const newPass=document.getElementById('newPassword').value;
+    const confirm=document.getElementById('confirmNewPassword').value;
+    const msg=document.getElementById('passwordMsg');
+    if(!current||!newPass||!confirm){msg.textContent='All fields are required.';msg.className='text-sm font-medium text-red-600';msg.classList.remove('hidden');return;}
+    if(newPass!==confirm){msg.textContent='Passwords do not match.';msg.className='text-sm font-medium text-red-600';msg.classList.remove('hidden');return;}
+    fetch('/lecturer/settings/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:current,newPassword:newPass})})
+      .then(r=>r.json()).then(data=>{
+        if(data.success){msg.textContent='Password updated successfully.';msg.className='text-sm font-medium text-green-600';msg.classList.remove('hidden');}
+        else{msg.textContent=data.message||'Failed.';msg.className='text-sm font-medium text-red-600';msg.classList.remove('hidden');}
+      });
   }
 
   function logout() {
-    if (confirm('Logout?')) window.location.href = '/auth/logout';
+    if (confirm('Are you sure you want to logout?')) window.location.href = '/auth/logout';
   }
-// Upload profile photo
-function uploadPhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Photo must be under 2MB.', 'error');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('photo', file);
-
-  alert('Uploading photo...', 'info', 2000);
-
-  fetch('/auth/upload-photo', {
-    method: 'POST',
-    body: formData
-  }).then(r => r.json()).then(data => {
-    if (data.success) {
-      setAvatarPhoto(data.photoPath);
-      alert('Profile photo updated! ✅', 'success');
-    } else {
-      alert(data.message || 'Upload failed.', 'error');
-    }
-  }).catch(() => {
-    alert('Server error. Please try again.', 'error');
-  });
-}
-
-// Set avatar to photo or initial letter
-function setAvatarPhoto(photoPath) {
-  const avatar = document.getElementById('sidebarAvatar');
-  if (photoPath) {
-    avatar.innerHTML = `<img src="${photoPath}" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-  }
-}
-
 </script>
 </body>
 </html>

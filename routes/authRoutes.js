@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const db = require('../config/db');
 const path = require('path');
 const mailer = require('../config/mailer');
@@ -20,7 +21,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage,
-    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max
+    limits: { fileSize: 2 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowed = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
         if (allowed.includes(file.mimetype)) cb(null, true);
@@ -33,7 +34,7 @@ router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/auth/index.html'));
 });
 
-// Landing page alternative route
+// Legacy /landing path — kept for compatibility with redirects
 router.get('/landing', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/auth/index.html'));
 });
@@ -50,54 +51,33 @@ router.get('/register', (req, res) => {
 
 // Register logic
 router.post('/register', (req, res) => {
-    const { surname, firstName, fullName, email, role, password, idNumber } = req.body;
+    const { surname, firstName, email, password, role, idNumber } = req.body;
 
-    if (!email || !role || !password) {
+    if (!surname || !firstName || !email || !password || !role) {
         return res.json({ success: false, message: 'All fields are required.' });
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.json({ success: false, message: 'Please enter a valid email address.' });
-    }
+    const fullName = surname.toUpperCase() + ' ' + firstName;
+    const matricNumber = role === 'student' ? (idNumber || null) : null;
+    const staffNumber  = role === 'lecturer' ? (idNumber || null) : null;
 
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) return res.json({ success: false, message: 'Database error.' });
-        if (results.length > 0) {
-            return res.json({ success: false, message: 'Email already registered.' });
-        }
+        if (results.length > 0) return res.json({ success: false, message: 'Email already registered.' });
 
-        const hashedPassword = bcrypt.hashSync(password, 10);
-        const matricNumber = role === 'student' ? (idNumber || null) : null;
-        const staffNumber = role === 'lecturer' ? (idNumber || null) : null;
-        const surnameUpper = surname ? surname.toUpperCase() : '';
-        const firstNameVal = firstName || '';
-        const fullNameVal = fullName || (surnameUpper + ' ' + firstNameVal);
+        bcrypt.hash(password, 10, (err, hash) => {
+            if (err) return res.json({ success: false, message: 'Error hashing password.' });
 
-        // Generate activation token
-        const crypto = require('crypto');
-        const activationToken = crypto.randomBytes(32).toString('hex');
-
-        db.query(
-            `INSERT INTO users (full_name, first_name, surname, email, password, role,
-            matric_number, staff_number, is_active, activation_token)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
-            [fullNameVal, firstNameVal, surnameUpper, email, hashedPassword,
-            role, matricNumber, staffNumber, activationToken],
-            (err, result) => {
-                if (err) return res.json({ success: false, message: 'Could not create account.' });
-
-                // Send activation email
-                const activationLink = `http://localhost:3000/auth/activate?token=${activationToken}`;
-                mailer.sendActivationEmail(email, fullNameVal, activationLink);
-                mailer.sendAccountCreated(email, fullNameVal, role);
-
-                res.json({
-                    success: true,
-                    message: 'Account created! Please check your email to activate your account.'
-                });
-            }
-        );
+            db.query(
+                'INSERT INTO users (full_name, first_name, surname, email, password, role, matric_number, staff_number, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
+                [fullName, firstName, surname.toUpperCase(), email, hash, role, matricNumber, staffNumber],
+                (err) => {
+                    if (err) return res.json({ success: false, message: 'Failed to register user.' });
+                    mailer.sendAccountCreated(email, fullName, role);
+                    res.json({ success: true, message: 'Account created successfully. You can now log in.' });
+                }
+            );
+        });
     });
 });
 
@@ -117,23 +97,13 @@ router.post('/login', (req, res) => {
         }
 
         const user = results[0];
-        const isMatch = bcrypt.compareSync(password, user.password);
 
-        if (!isMatch) {
+        if (!bcrypt.compareSync(password, user.password)) {
             return res.json({ success: false, message: 'Invalid email or password.' });
         }
 
-        // Check if account is activated
-        if (!user.is_active) {
-            return res.json({
-                success: false,
-                message: '⚠️ Account not activated. Please check your email and click the activation link.'
-            });
-        }
-
-        // Save last login time
         db.query('UPDATE users SET last_login = NOW() WHERE user_id = ?', [user.user_id], () => {});
-       
+
         req.session.user = {
             id: user.user_id,
             fullName: user.full_name,
@@ -145,9 +115,7 @@ router.post('/login', (req, res) => {
             staffNumber: user.staff_number || null
         };
 
-        // Send login notification email
         mailer.sendLoginSuccess(email, user.full_name);
-
         res.json({ success: true, role: user.role });
     });
 });
@@ -182,8 +150,6 @@ router.get('/logout', (req, res) => {
     res.redirect('/auth/login');
 });
 
-const crypto = require('crypto');
-
 // Forgot password page
 router.get('/forgot-password', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/auth/forgot-password.html'));
@@ -192,33 +158,24 @@ router.get('/forgot-password', (req, res) => {
 // Forgot password logic
 router.post('/forgot-password', (req, res) => {
     const { email } = req.body;
-
-    if (!email) {
-        return res.json({ success: false, message: 'Email is required.' });
-    }
+    if (!email) return res.json({ success: false, message: 'Email is required.' });
 
     db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-        if (err) return res.json({ success: false, message: 'Database error.' });
-
-        if (results.length === 0) {
-            return res.json({ success: false, message: 'No account found with this email.' });
+        if (err || results.length === 0) {
+            return res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
         }
 
         const user = results[0];
-
-        // Generate reset token
         const token = crypto.randomBytes(32).toString('hex');
-        const expiry = new Date(Date.now() + 3600000); // 1 hour
+        const expiry = new Date(Date.now() + 3600000);
 
         db.query('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE user_id = ?',
             [token, expiry, user.user_id], (err) => {
-                if (err) return res.json({ success: false, message: 'Failed to generate reset token.' });
-
-                const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
-                mailer.sendPasswordReset(email, user.full_name, resetLink);
-
-                res.json({ success: true, message: 'Password reset link sent to your email!' });
-            });
+            if (err) return res.json({ success: false, message: 'Failed to process request.' });
+            const resetLink = `http://localhost:3000/auth/reset-password?token=${token}`;
+            mailer.sendPasswordReset(email, user.full_name, resetLink);
+            res.json({ success: true, message: 'If that email exists, a reset link has been sent.' });
+        });
     });
 });
 
@@ -230,93 +187,32 @@ router.get('/reset-password', (req, res) => {
 // Reset password logic
 router.post('/reset-password', (req, res) => {
     const { token, newPassword } = req.body;
-
-    if (!token || !newPassword) {
-        return res.json({ success: false, message: 'All fields are required.' });
-    }
+    if (!token || !newPassword) return res.json({ success: false, message: 'Invalid request.' });
 
     db.query('SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
         [token], (err, results) => {
-            if (err) return res.json({ success: false, message: 'Database error.' });
-
-            if (results.length === 0) {
-                return res.json({ success: false, message: 'Invalid or expired reset link.' });
-            }
-
-            const hashed = bcrypt.hashSync(newPassword, 10);
-
-            db.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE user_id = ?',
-                [hashed, results[0].user_id], (err) => {
-                    if (err) return res.json({ success: false, message: 'Failed to reset password.' });
-                    res.json({ success: true, message: 'Password reset successfully!' });
-                });
-        });
-});
-
-// Activate account
-router.get('/activate', (req, res) => {
-    const { token } = req.query;
-
-    if (!token) {
-        return res.redirect('/auth/login');
-    }
-
-    db.query('SELECT * FROM users WHERE activation_token = ?', [token], (err, results) => {
         if (err || results.length === 0) {
-            return res.send(`
-                <html>
-                <head>
-                  <title>AGLAS - Activation Failed</title>
-                  <script src="https://cdn.tailwindcss.com"></script>
-                </head>
-                <body class="bg-gray-50 flex items-center justify-center min-h-screen">
-                  <div class="bg-white rounded-2xl p-12 text-center shadow-sm max-w-md">
-                    <div class="text-5xl mb-4">❌</div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Invalid Link</h2>
-                    <p class="text-gray-500 mb-6">This activation link is invalid or has already been used.</p>
-                    <a href="/auth/login" class="bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold">Go to Login</a>
-                  </div>
-                </body>
-                </html>`);
+            return res.json({ success: false, message: 'Invalid or expired reset link.' });
         }
 
-        db.query('UPDATE users SET is_active = 1, activation_token = NULL WHERE user_id = ?',
-            [results[0].user_id], (err) => {
-                if (err) return res.redirect('/auth/login');
-
-                return res.send(`
-                    <html>
-                    <head>
-                      <title>AGLAS - Account Activated</title>
-                      <script src="https://cdn.tailwindcss.com"></script>
-                    </head>
-                    <body class="bg-gray-50 flex items-center justify-center min-h-screen">
-                      <div class="bg-white rounded-2xl p-12 text-center shadow-sm max-w-md">
-                        <div class="text-5xl mb-4">🎉</div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Account Activated!</h2>
-                        <p class="text-gray-500 mb-6">Your AGLAS account has been successfully activated. You can now login!</p>
-                        <a href="/auth/login" class="bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-800">
-                          Login Now →
-                        </a>
-                      </div>
-                    </body>
-                    </html>`);
+        bcrypt.hash(newPassword, 10, (err, hash) => {
+            if (err) return res.json({ success: false, message: 'Failed to reset password.' });
+            db.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE user_id = ?',
+                [hash, results[0].user_id], (err) => {
+                if (err) return res.json({ success: false, message: 'Failed to reset password.' });
+                res.json({ success: true, message: 'Password reset successfully!' });
             });
+        });
     });
 });
 
 // Upload profile photo
 router.post('/upload-photo', upload.single('photo'), (req, res) => {
-    if (!req.session.user) {
-        return res.json({ success: false, message: 'Not logged in.' });
-    }
-    if (!req.file) {
-        return res.json({ success: false, message: 'No file uploaded.' });
-    }
+    if (!req.session.user) return res.json({ success: false, message: 'Not logged in.' });
+    if (!req.file) return res.json({ success: false, message: 'No file uploaded.' });
 
     const photoPath = '/uploads/profiles/' + req.file.filename;
 
-    // Delete old photo if exists
     db.query('SELECT profile_photo FROM users WHERE user_id = ?',
         [req.session.user.id], (err, results) => {
         if (!err && results[0] && results[0].profile_photo) {
@@ -325,7 +221,6 @@ router.post('/upload-photo', upload.single('photo'), (req, res) => {
         }
     });
 
-    // Save new photo path
     db.query('UPDATE users SET profile_photo = ? WHERE user_id = ?',
         [photoPath, req.session.user.id], (err) => {
         if (err) return res.json({ success: false, message: 'Failed to save photo.' });

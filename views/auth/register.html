@@ -6,13 +6,27 @@
   <title>AGLAS • Create Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .gradient-bg { background: linear-gradient(135deg, #581c87 0%, #3b0764 60%, #1e0336 100%); }
-    .input-field:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
-    .btn-primary { background: linear-gradient(135deg, #7c3aed, #581c87); }
-    .btn-primary:hover { background: linear-gradient(135deg, #6d28d9, #4c1d95); }
-  </style>
+ <style>
+  body { font-family: 'Inter', sans-serif; }
+  .gradient-bg {
+    background: linear-gradient(135deg, #1a0a35 0%, #3b0764 50%, #1a0a35 100%);
+  }
+  .input-field {
+    background: #f8f4ff;
+  }
+  .input-field:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #3b0764, #7c3aed);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #1a0a35, #6d28d9);
+    transform: translateY(-1px);
+  }
+</style>
 </head>
 <body class="gradient-bg min-h-screen flex items-center justify-center p-4">
 
@@ -22,7 +36,7 @@
     <div class="hidden md:flex flex-col justify-between w-1/2 p-12 text-white" style="background:rgba(255,255,255,0.05);">
       <div>
         <div class="flex items-center gap-3 mb-16">
-          <i class="fas fa-graduation-cap text-4xl"></i>
+          <i class="fas fa-graduation-cap text-4xl" style="color:#f5c518"></i>
           <div>
             <h1 class="text-3xl font-bold tracking-tight">AGLAS</h1>
             <p class="text-purple-200 text-sm -mt-1">Automatic Grading System</p>
@@ -52,7 +66,7 @@
     <!-- RIGHT PANEL -->
     <div class="flex-1 bg-white flex flex-col justify-center px-10 py-10 overflow-y-auto">
       <div class="flex md:hidden items-center gap-3 mb-8 justify-center">
-        <i class="fas fa-graduation-cap text-purple-700 text-3xl"></i>
+        <i class="fas fa-graduation-cap text-purple-700 text-3xl" style="color:#f5c518"></i>
         <h1 class="text-2xl font-bold text-purple-900">AGLAS</h1>
       </div>
 
@@ -163,7 +177,7 @@
         <div class="flex items-start gap-3 pt-1">
           <input type="checkbox" id="terms" class="w-5 h-5 mt-0.5" required />
           <label for="terms" class="text-sm text-gray-600">
-            I agree to the <a href="#" class="text-purple-700 font-semibold hover:underline">Terms of Service</a> and <a href="#" class="text-purple-700 font-semibold hover:underline">Privacy Policy</a>
+           I agree to the <a href="#" onclick="showTerms()" class="text-purple-700 font-semibold hover:underline">Terms of Service</a> and <a href="#" onclick="showTerms()" class="text-purple-700 font-semibold hover:underline">Privacy Policy</a>
           </label>
         </div>
 
@@ -268,11 +282,10 @@
         const data = await res.json();
 
        if (data.success) {
-          document.getElementById("successText").textContent = data.message;
-          document.getElementById("successMsg").classList.remove("hidden");
-          btnText.textContent = "Check Your Email!";
-          btnIcon.className = "fas fa-envelope";
-        } else {
+          btnText.textContent = "Account Created! Redirecting...";
+          btnIcon.className = "fas fa-check";
+          setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
+        }else {
           document.getElementById("errorText").textContent = data.message || "Registration failed.";
           document.getElementById("errorMsg").classList.remove("hidden");
           btn.disabled = false;
@@ -287,6 +300,38 @@
         btnIcon.className = "fas fa-arrow-right";
       }
     }
+
+function showTerms() {
+  const popup = document.createElement('div');
+  popup.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;';
+  popup.innerHTML = `
+    <div style="background:white;border-radius:24px;padding:32px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <h2 style="font-size:20px;font-weight:800;color:#1f2937;">Terms of Service & Privacy Policy</h2>
+        <button onclick="this.closest('div[style]').remove()" style="background:#f3f4f6;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;">×</button>
+      </div>
+      <div style="color:#374151;font-size:14px;line-height:1.8;">
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:8px;">1. Acceptance of Terms</p>
+        <p style="margin-bottom:16px;">By creating an account on AGLAS, you agree to these terms. AGLAS is an academic assessment platform developed for Federal University of Lafia.</p>
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:8px;">2. Use of the System</p>
+        <p style="margin-bottom:16px;">You agree to use this system only for legitimate academic purposes. Any form of cheating, impersonation, or academic dishonesty is strictly prohibited.</p>
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:8px;">3. Account Responsibility</p>
+        <p style="margin-bottom:16px;">You are responsible for maintaining the confidentiality of your account credentials. Do not share your password with anyone.</p>
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:8px;">4. Privacy Policy</p>
+        <p style="margin-bottom:16px;">Your personal information including name, email and matric number is collected solely for the purpose of academic assessment and will not be shared with third parties.</p>
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:8px;">5. Data & Results</p>
+        <p style="margin-bottom:16px;">Exam results and grades stored on AGLAS are for academic record purposes only and may be accessed by authorized lecturers and administrators.</p>
+        <p style="font-weight:700;color:#7c3aed;margin-bottom:8px;">6. Contact</p>
+        <p>For any concerns, contact your department administrator or system supervisor.</p>
+      </div>
+      <button onclick="document.getElementById('terms').checked=true; this.closest('div[style]').remove()"
+        style="margin-top:24px;width:100%;background:linear-gradient(135deg,#3b0764,#7c3aed);color:white;border:none;padding:14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;">
+        I Agree ✓
+      </button>
+    </div>`;
+  document.body.appendChild(popup);
+}
+
   </script>
 </body>
 </html>

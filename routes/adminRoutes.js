@@ -180,27 +180,36 @@ router.get('/assessments', isAdmin, (req, res) => {
 });
 
 // Update profile
-router.post('/settings/profile', isAdmin, (req, res) => {
+router.post('/settings/profile', (req, res) => {
     const { fullName, email } = req.body;
+    if (!fullName || !email) return res.json({ success: false, message: 'Name and email are required.' });
     db.query('UPDATE users SET full_name = ?, email = ? WHERE user_id = ?',
         [fullName, email, req.session.user.id], (err) => {
-            if (err) return res.json({ success: false, message: 'Email already in use.' });
-            req.session.user.fullName = fullName;
-            res.json({ success: true });
-        });
+        if (err) return res.json({ success: false, message: 'Failed to update profile.' });
+        req.session.user.fullName = fullName;
+        req.session.user.email = email;
+        res.json({ success: true });
+    });
 });
 
 // Update password
-router.post('/settings/password', isAdmin, (req, res) => {
+router.post('/settings/password', (req, res) => {
     const { currentPassword, newPassword } = req.body;
-    db.query('SELECT * FROM users WHERE user_id = ?', [req.session.user.id], (err, results) => {
+    if (!currentPassword || !newPassword) return res.json({ success: false, message: 'All fields are required.' });
+
+    db.query('SELECT password FROM users WHERE user_id = ?', [req.session.user.id], (err, results) => {
         if (err || results.length === 0) return res.json({ success: false, message: 'User not found.' });
-        const isMatch = bcrypt.compareSync(currentPassword, results[0].password);
-        if (!isMatch) return res.json({ success: false, message: 'Current password is incorrect.' });
-        const hashed = bcrypt.hashSync(newPassword, 10);
-        db.query('UPDATE users SET password = ? WHERE user_id = ?', [hashed, req.session.user.id], (err) => {
-            if (err) return res.json({ success: false });
-            res.json({ success: true });
+
+        bcrypt.compare(currentPassword, results[0].password, (err, match) => {
+            if (!match) return res.json({ success: false, message: 'Current password is incorrect.' });
+
+            bcrypt.hash(newPassword, 10, (err, hash) => {
+                if (err) return res.json({ success: false, message: 'Failed to update password.' });
+                db.query('UPDATE users SET password = ? WHERE user_id = ?', [hash, req.session.user.id], (err) => {
+                    if (err) return res.json({ success: false, message: 'Failed to update password.' });
+                    res.json({ success: true });
+                });
+            });
         });
     });
 });
@@ -254,6 +263,87 @@ router.delete('/enrollments/remove/:id', isAdmin, (req, res) => {
             if (err) return res.json({ success: false });
             res.json({ success: true });
         });
+});
+
+// System reports
+router.get('/reports', (req, res) => {
+    const reports = {};
+
+    // Average score per course
+    db.query(`SELECT c.course_code, c.course_title,
+        AVG((s.total_score / a.total_marks) * 100) as avg_score,
+        COUNT(s.submission_id) as total_submissions
+        FROM submissions s
+        JOIN assessments a ON s.assessment_id = a.assessment_id
+        JOIN courses c ON a.course_id = c.course_id
+        WHERE s.status = 'graded'
+        GROUP BY c.course_id
+        ORDER BY avg_score DESC`, (err, courseScores) => {
+        reports.courseScores = (courseScores || []).map(c => ({
+            ...c,
+            avg_score: Math.round(c.avg_score * 10) / 10
+        }));
+
+        // Most active students (by submission count)
+        db.query(`SELECT u.full_name, u.matric_number, COUNT(s.submission_id) as submission_count,
+            AVG((s.total_score / a.total_marks) * 100) as avg_score
+            FROM submissions s
+            JOIN users u ON s.student_id = u.user_id
+            JOIN assessments a ON s.assessment_id = a.assessment_id
+            WHERE s.status = 'graded'
+            GROUP BY u.user_id
+            ORDER BY submission_count DESC
+            LIMIT 10`, (err, activeStudents) => {
+            reports.activeStudents = (activeStudents || []).map(s => ({
+                ...s,
+                avg_score: Math.round(s.avg_score * 10) / 10
+            }));
+
+            // Assessment type distribution
+            db.query(`SELECT type, COUNT(*) as count FROM assessments GROUP BY type`, (err, typeDistribution) => {
+                reports.typeDistribution = typeDistribution || [];
+
+                // Pass/Fail rates overall
+                db.query(`SELECT
+                    SUM(CASE WHEN (s.total_score / a.total_marks) * 100 >= 45 THEN 1 ELSE 0 END) as passed,
+                    SUM(CASE WHEN (s.total_score / a.total_marks) * 100 < 45 THEN 1 ELSE 0 END) as failed,
+                    COUNT(*) as total
+                    FROM submissions s
+                    JOIN assessments a ON s.assessment_id = a.assessment_id
+                    WHERE s.status = 'graded'`, (err, passFail) => {
+                    reports.passFail = passFail && passFail[0] ? passFail[0] : { passed:0, failed:0, total:0 };
+
+                    // Submissions per month (last 6 months)
+                    db.query(`SELECT DATE_FORMAT(submitted_at, '%Y-%m') as month, COUNT(*) as count
+                        FROM submissions
+                        WHERE submitted_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                        GROUP BY month
+                        ORDER BY month ASC`, (err, monthly) => {
+                        reports.monthlySubmissions = monthly || [];
+
+                        // Top performing lecturers (by avg student score on their assessments)
+                        db.query(`SELECT u.full_name as lecturer_name,
+                            AVG((s.total_score / a.total_marks) * 100) as avg_score,
+                            COUNT(DISTINCT a.assessment_id) as assessment_count
+                            FROM submissions s
+                            JOIN assessments a ON s.assessment_id = a.assessment_id
+                            JOIN courses c ON a.course_id = c.course_id
+                            JOIN users u ON c.lecturer_id = u.user_id
+                            WHERE s.status = 'graded'
+                            GROUP BY u.user_id
+                            ORDER BY avg_score DESC`, (err, lecturerStats) => {
+                            reports.lecturerStats = (lecturerStats || []).map(l => ({
+                                ...l,
+                                avg_score: Math.round(l.avg_score * 10) / 10
+                            }));
+
+                            res.json({ success: true, reports });
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
 
 module.exports = router;

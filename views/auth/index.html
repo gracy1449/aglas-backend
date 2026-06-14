@@ -305,7 +305,7 @@
   <!-- NAV -->
   <nav>
     <div class="nav-brand">
-      <i class="fas fa-graduation-cap"></i>
+      <i class="fas fa-graduation-cap" style="color:#f5c518"></i>
       <div class="nav-brand-text">
         <span class="name">AGLAS</span>
         <span class="tagline">Automatic Grading & Learning Assessment System</span>
@@ -317,7 +317,7 @@
       <a href="#roles">Who It's For</a>
       <a href="#testimonials">Testimonials</a>
     </div>
-    <a href="#" class="nav-cta" onclick="handleLogin(event)">
+    <a href="/auth/login" class="nav-cta" onclick="handleLogin(event)">
       <i class="fas fa-sign-in-alt" style="margin-right:6px;"></i> Sign In
     </a>
   </nav>
@@ -331,7 +331,7 @@
     <h1>Grade Smarter.<br><em>Built for Students &amp; Lecturers.</em></h1>
     <p>AGLAS automatically evaluates objective, theory and programming assignments using keyword matching and rule-based logic — giving students instant, unbiased feedback.</p>
     <div class="hero-actions">
-      <a href="#" class="btn-primary" onclick="handleLogin(event)">
+      <a href="/auth/login" class="btn-primary" onclick="handleLogin(event)">
         <i class="fas fa-sign-in-alt"></i> Get Started Free
       </a>
       <a href="#how-it-works" class="btn-ghost">
@@ -561,14 +561,12 @@
     <h2>Ready to Get Started?</h2>
     <p>Join AGLAS today and experience the future of academic assessment in Nigerian universities.</p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-      <a href="#" class="btn-primary" onclick="handleLogin(event)">
-        <i class="fas fa-graduation-cap"></i> Launch AGLAS Now
+      <a href="/auth/login" class="btn-primary" onclick="handleLogin(event)">
+        <i class="fas fa-graduation-cap" style="color:#f5c518"></i> Launch AGLAS Now
       </a>
       <a href="#how-it-works" class="btn-ghost">Learn More</a>
     </div>
   </div>
-
-  <!-- FOOTER -->
   <footer>
     <div class="footer-links">
     </div>
@@ -586,8 +584,9 @@
   <script>
     function handleLogin(e) {
       e.preventDefault();
+      const targetUrl = e.currentTarget ? e.currentTarget.getAttribute('href') : '/auth/login';
       document.getElementById('redirectOverlay').classList.add('show');
-      setTimeout(() => { window.location.href = '/auth/login'; }, 1000);
+      setTimeout(() => { window.location.href = targetUrl; }, 500);
     }
   </script>
 </body>

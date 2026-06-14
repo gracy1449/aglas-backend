@@ -1,11 +1,11 @@
 const mysql2 = require('mysql2');
 
 const pool = mysql2.createPool({
-    host: '127.0.0.1',
-    port: 3306,
-    user: 'root',
-    password: '',
-    database: 'autograder_db',
+    host: process.env.MYSQL_HOST || '127.0.0.1',
+    port: process.env.MYSQL_PORT || 3306,
+    user: process.env.MYSQL_USER || 'root',
+    password: process.env.MYSQL_PASSWORD || '',
+    database: process.env.MYSQL_DATABASE || 'autograder_db',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -21,7 +21,6 @@ pool.getConnection((err, connection) => {
     connection.release();
 });
 
-// Wrap pool to work exactly like the old connection
 const db = {
     query: (sql, params, callback) => {
         if (typeof params === 'function') {
