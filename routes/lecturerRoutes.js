@@ -1,45 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
-const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const { sendAssessmentPublished } = require('../config/mailer');
+const { uploadMaterial, cloudinary } = require('../config/cloudinary');
 
 function isLecturer(req, res, next) {
     if (req.session.user && req.session.user.role === 'lecturer') return next();
     res.status(403).json({ success: false, message: 'Access denied.' });
 }
 
-// Lecturer dashboard page
 router.get('/dashboard', isLecturer, (req, res) => {
     res.sendFile(path.join(__dirname, '../views/lecturer/dashboard.html'));
 });
 
-// ── MATERIAL UPLOAD CONFIG ──────────────────────────────
-const materialStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.join(__dirname, '../public/uploads/materials');
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const safeName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
-        cb(null, Date.now() + '_' + safeName);
-    }
-});
-const uploadMaterial = multer({
-    storage: materialStorage,
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        const allowed = ['.pdf', '.ppt', '.pptx', '.doc', '.docx', '.zip'];
-        const ext = path.extname(file.originalname).toLowerCase();
-        if (allowed.includes(ext)) cb(null, true);
-        else cb(new Error('Only PDF, PPT, DOC, and ZIP files are allowed.'));
-    }
-});
-
-// ── SIMILARITY HELPER ────────────────────────────────────
 function calculateSimilarity(textA, textB) {
     if (!textA || !textB) return 0;
     const wordsA = new Set(textA.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(w=>w.length>2));
@@ -50,6 +24,7 @@ function calculateSimilarity(textA, textB) {
     const union = wordsA.size + wordsB.size - intersection;
     return Math.round((intersection / union) * 100);
 }
+// ── SIMILARITY HELPER ────────────────────────────────────
 
 // ── DASHBOARD STATS ───────────────────────────────────────
 router.get('/stats', isLecturer, (req, res) => {
@@ -325,7 +300,7 @@ router.get('/submissions/:id', isLecturer, (req, res) => {
         if (err || subResults.length === 0) return res.json({ success: false, message: 'Submission not found.' });
         const submission = subResults[0];
 
-        db.query(`SELECT sa.answer_id, sa.question_id, sa.answer_text, sa.score_awarded, sa.is_correct, sa.lecturer_feedback,
+       db.query(`SELECT sa.student_answer_id as answer_id, sa.question_id, sa.answer_text, sa.score_awarded, sa.is_correct, sa.lecturer_feedback,
             q.question_text, q.question_type, q.marks,
             ak.correct_answer, ak.keywords, ak.test_case
             FROM student_answers sa
@@ -349,12 +324,14 @@ router.post('/submissions/:id/review', isLecturer, (req, res) => {
     let completed = 0;
     let hasError = false;
     scores.forEach(s => {
-        db.query('UPDATE student_answers SET score_awarded = ?, lecturer_feedback = ?, is_correct = ? WHERE answer_id = ?',
-            [s.score_awarded, s.lecturer_feedback || null, s.score_awarded > 0 ? 1 : 0, s.answer_id], (err) => {
-            if (err) hasError = true;
-            completed++;
-            if (completed === scores.length) finalizeReview();
-        });
+        db.query('UPDATE student_answers SET score_awarded = ?, lecturer_feedback = ?, is_correct = ? WHERE student_answer_id = ?',
+            [s.score_awarded, s.lecturer_feedback || null, s.score_awarded > 0 ? 1 : 0, s.answer_id],
+            (err) => {
+                if (err) hasError = true;
+                completed++;
+                if (completed === scores.length) finalizeReview();
+            }
+        );
     });
 
     function finalizeReview() {
@@ -406,10 +383,13 @@ router.post('/materials/upload', isLecturer, (req, res) => {
     uploadMaterial.single('file')(req, res, (err) => {
         if (err) return res.json({ success: false, message: err.message });
         if (!req.file) return res.json({ success: false, message: 'No file uploaded.' });
+
         const { courseId, title } = req.body;
         if (!courseId || !title) return res.json({ success: false, message: 'Course and title are required.' });
-        const filePath = '/uploads/materials/' + req.file.filename;
-        const fileType = path.extname(req.file.originalname).replace('.', '').toUpperCase();
+
+        const filePath = req.file.path;
+        const fileType = req.file.originalname.split('.').pop().toUpperCase();
+
         db.query('INSERT INTO course_materials (course_id, lecturer_id, title, file_path, file_type) VALUES (?, ?, ?, ?, ?)',
             [courseId, req.session.user.id, title, filePath, fileType], (err) => {
             if (err) return res.json({ success: false, message: 'Failed to save material.' });
@@ -432,10 +412,17 @@ router.delete('/materials/delete/:id', isLecturer, (req, res) => {
     db.query('SELECT file_path FROM course_materials WHERE material_id = ? AND lecturer_id = ?',
         [req.params.id, req.session.user.id], (err, results) => {
         if (err || results.length === 0) return res.json({ success: false, message: 'Material not found.' });
-        const filePath = path.join(__dirname, '../public', results[0].file_path);
-        fs.unlink(filePath, () => {});
+
+        const fileUrl = results[0].file_path;
+        try {
+            const urlParts = fileUrl.split('/');
+            const filename = urlParts[urlParts.length - 1].split('.')[0];
+            const publicId = 'aglas/materials/' + filename;
+            cloudinary.uploader.destroy(publicId, { resource_type: 'raw' }).catch(() => {});
+        } catch (e) {}
+
         db.query('DELETE FROM course_materials WHERE material_id = ?', [req.params.id], (err) => {
-            if (err) return res.json({ success: false, message: 'Failed to delete material.' });
+            if (err) return res.json({ success: false, message: 'Failed to delete.' });
             res.json({ success: true });
         });
     });
