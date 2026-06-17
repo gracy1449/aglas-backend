@@ -6,6 +6,8 @@ const path = require('path');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // ── MIDDLEWARE ────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,6 +32,7 @@ app.use(session({
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
